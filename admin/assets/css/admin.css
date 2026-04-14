@@ -1,0 +1,814 @@
+/**
+ * Universal Admin Panel Styles
+ */
+
+:root {
+    --sidebar-width: 260px;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --sidebar-bg: #0F172A;
+    --sidebar-hover: #34495e;
+    /* --sidebar-active: #6366F1; */
+    --sidebar-active: #2b835b;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Wrapper */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* Sidebar */
+.sidebar {
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    /* background: var(--sidebar-bg); */
+    background: linear-gradient(165deg, #1e1b4b 20%, #0f172a 60%, #0c0a1d 100%
+100%
+);
+    color: #fff;
+    transition: all 0.3s;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    overflow: hidden; /* ul.components handles its own scroll */
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.active {
+    margin-left: calc(-1 * var(--sidebar-width));
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.sidebar ul.components {
+    padding: 15px 0 15px;
+    flex: 1;
+    overflow-y: auto; /* Sidebar list scrolls independently */
+    min-height: 0;   /* Required for flex children to shrink & scroll */
+}
+
+.sidebar ul li {
+    padding: 0;
+}
+
+.sidebar ul li a {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    display: block;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li.active > a {
+    color: #fff;
+    background: var(--sidebar-hover);
+    border-left: 3px solid var(--sidebar-active);
+}
+
+.sidebar ul li.active > a {
+    background: var(--sidebar-active);
+}
+
+.sidebar .menu-section {
+    padding: 15px 0 5px 0;
+    margin-top: 10px;
+}
+.sidebar-info{
+  color: white !important;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    flex-shrink: 0; /* Always visible, never pushed off-screen */
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+}
+
+.sidebar-footer-content {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+}
+
+.sidebar-footer-content p {
+    line-height: 1.5;
+}
+.sidebar-footer-content p a{
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+}
+ 
+.sidebar-footer-content small {
+    font-size: 0.75rem;
+}
+
+/* Content Area */
+#content {
+    width: 100%;
+    min-height: 100vh;
+    transition: all 0.3s;
+    margin-left: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+}
+
+#content.active {
+    margin-left: 0;
+}
+
+/* Top Navbar */
+.navbar {
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Cards */
+
+
+.card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+.card-header {
+    background: var(--sidebar-active);
+    color: white;
+    font-weight: 600;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Stats Cards */
+.stats-card {
+    transition: transform 0.3s;
+}
+
+/* .stats-card:hover {
+    transform: translateY(-5px);
+} */
+
+.stats-card .card-body {
+    padding: 25px;
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+
+.stats-icon.primary {
+    background: var(--sidebar-active);
+    color: white;
+}
+
+.stats-icon.success {
+    background: var(--sidebar-active);
+    color: white;
+}
+
+.stats-icon.warning {
+    background: var(--sidebar-active);
+    color: white;
+}
+
+.stats-icon.info {
+    background: var(--sidebar-active);
+    color: white;
+}
+
+/* Tables */
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s;
+    background: var(--sidebar-active);
+    color: white;
+}
+.btn:hover{
+  background-color: var(--sidebar-hover);
+  color: white;
+}
+/* 
+.btn-primary {
+    background: var(--sidebar-active);
+    border: none;
+} */
+
+/* .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+} */
+
+/* Forms */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Image Preview */
+.image-preview {
+    max-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Gallery Grid */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.gallery-item:hover {
+    transform: scale(1.05);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.gallery-item-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    padding: 15px;
+    color: white;
+}
+
+/* Activity Log */
+.activity-item {
+    padding: 15px;
+    border-left: 3px solid #667eea;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.activity-item:hover {
+    background: #e9ecef;
+}
+
+/* Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* Footer */
+.footer {
+    background: white;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+    
+    .sidebar.active {
+        margin-left: 0;
+    }
+    
+    #content {
+        margin-left: 0;
+    }
+    
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+/* Action Buttons */
+.action-buttons .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Scrollbar Styling */
+.sidebar ul.components::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar ul.components::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+}
+
+.sidebar ul.components::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
+
+.sidebar ul.components::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* Summernote Editor Styling */
+.note-editor {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    margin-bottom: 0;
+}
+
+.note-editor.note-frame {
+    border-color: #ced4da;
+}
+
+.note-editor.note-frame .note-editing-area .note-editable {
+    background-color: #fff;
+    color: #212529;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 15px;
+}
+
+.note-toolbar {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px 5px;
+}
+
+.note-btn-group {
+    margin: 0 2px;
+}
+
+/* Ensure full width for summernote */
+#summernote {
+    width: 100% !important;
+}
+
+.note-editor.note-frame {
+    width: 100% !important;
+}
+
+/* Login Page Styles */
+body.login-page {
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.login-header {
+    background: var(--sidebar-active);
+    color: white;
+    padding: 20px;
+    border-radius: 15px 15px 0 0;
+    text-align: center;
+}
+
+.login-header-icon {
+    font-size: 3rem;
+}
+
+.login-body {
+    padding: 30px;
+}
+
+.btn-login {
+    background: var(--sidebar-active);
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.btn-login:hover {
+    opacity: 0.9;
+}
+
+/* Forgot Password Link */
+.forgot-password-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.forgot-password-link i {
+    font-size: 13px;
+}
+
+/* Empty State Icons */
+.empty-state-icon {
+    font-size: 4rem;
+    color: #ccc;
+}
+
+/* Thumbnail Images */
+.thumbnail-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.thumbnail-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #eee;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Preview Images */
+.preview-image {
+    max-width: 300px;
+    border-radius: 8px;
+}
+
+.preview-image-large {
+    max-height: 400px;
+}
+
+/* ====================================
+   Forgot Password Page Styles
+   ==================================== */
+
+body.forgot-password-page {
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.forgot-password-container {
+    max-width: 480px;
+    width: 100%;
+    padding: 0 15px;
+}
+
+.forgot-password-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.forgot-password-header {
+    background: var(--sidebar-active);
+    color: white;
+    padding: 20px;
+    border-radius: 15px 15px 0 0;
+    text-align: center;
+}
+
+.forgot-password-header-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.forgot-password-body {
+    padding: 30px;
+    background: white;
+    border-radius: 0 0 15px 15px;
+}
+
+.info-box {
+    background: #e7f3ff;
+    border-left: 4px solid #2196F3;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.info-box i {
+    color: #2196F3;
+    margin-right: 8px;
+}
+
+.reset-link-box {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.reset-link-display {
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 12px;
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #495057;
+    margin-top: 10px;
+}
+
+.btn-gradient {
+    background: var(--sidebar-active);
+    border: none;
+    color: white;
+    padding: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.back-to-login {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-to-login a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.back-to-login a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* ====================================
+   Reset Password Page Styles
+   ==================================== */
+
+body.reset-password-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reset-password-container {
+    max-width: 500px;
+    width: 100%;
+    padding: 0 15px;
+}
+
+.reset-password-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: fadeInUp 0.5s ease;
+}
+
+.reset-password-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 15px 15px 0 0;
+    text-align: center;
+}
+
+.reset-password-header-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.reset-password-body {
+    padding: 30px;
+    background: white;
+    border-radius: 0 0 15px 15px;
+}
+
+.password-requirements {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.password-requirements ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.password-requirements li {
+    margin: 5px 0;
+}
+
+.password-strength {
+    height: 5px;
+    background: #e9ecef;
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s;
+    border-radius: 3px;
+}
+
+.password-strength-weak {
+    width: 33%;
+    background: #dc3545;
+}
+
+.password-strength-medium {
+    width: 66%;
+    background: #ffc107;
+}
+
+.password-strength-strong {
+    width: 100%;
+    background: #28a745;
+}
+
+.success-animation {
+    text-align: center;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin: 20px 0;
+}
+
+/* ============================================================
+   Role Badges
+   ============================================================ */
+.role-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+    text-transform: uppercase;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* Navbar role badge sits inline next to the username */
+.navbar .role-badge {
+    font-size: 0.58rem;
+    opacity: 0.9;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Role-specific colour overrides */
+.badge-role-superadmin { background-color: #7c3aed !important; color: #fff !important; }
+.badge-role-admin      { background-color: #1d4ed8 !important; color: #fff !important; }
+.badge-role-editor     { background-color: #0891b2 !important; color: #fff !important; }
+.badge-role-teacher    { background-color: #15803d !important; color: #fff !important; }
+
+/* User management table tweaks */
+.table .badge { vertical-align: middle; }

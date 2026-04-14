@@ -1,0 +1,64 @@
+# ================================================
+# Admin Panel .gitignore
+# ================================================
+
+# Configuration files (sensitive data)
+/admin/config/config.php
+
+# User uploads
+/uploads/*
+!/uploads/.gitkeep
+
+# PHP error logs
+*.log
+error_log
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+# Database dumps
+*.sql.gz
+*.sql.bak
+backup.sql
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Composer
+/vendor/
+composer.lock
+
+# NPM
+/node_modules/
+package-lock.json
+
+# Test files
+/tests/
+/test/
+phpunit.xml
