@@ -40,7 +40,7 @@ $metaDescription = trim((string) ($blog['seo_description'] ?? '')) !== '' ? $blo
 $metaKeywords = $blog['meta_keywords'] ?? '';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo frontend_escape(frontend_current_lang()); ?>">
 
 <head>
 	<meta charset="utf-8">

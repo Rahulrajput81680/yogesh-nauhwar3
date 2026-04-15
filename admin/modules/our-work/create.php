@@ -81,7 +81,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
 
           <div class="mb-4">
             <label for="image" class="form-label">Select Image *</label>
-            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+            <input type="file" class="form-control" id="image" name="image" accept="image/webp" required>
             <small class="text-muted">Allowed types: <?php echo implode(', ', ALLOWED_IMAGE_TYPES); ?> | Max size: <?php echo format_file_size(MAX_UPLOAD_SIZE); ?></small>
           </div>
 

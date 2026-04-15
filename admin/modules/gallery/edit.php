@@ -141,7 +141,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
           <!-- Replace Image -->
           <div class="mb-4">
             <label for="image" class="form-label">Replace Image (Optional)</label>
-            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <input type="file" class="form-control" id="image" name="image" accept="image/webp">
             <small class="text-muted">
               Leave empty to keep current image | Max size: <?php echo format_file_size(MAX_UPLOAD_SIZE); ?>
             </small>

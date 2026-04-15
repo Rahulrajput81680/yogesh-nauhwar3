@@ -217,10 +217,10 @@ include __DIR__ . '/includes/header.php';
               Status: <strong><?php echo escape($admin['status']); ?></strong>
             </div>
             <div>
-              <a href="<?php echo ADMIN_URL; ?>/dashboard.php" class="btn btn-secondary me-2">
+              <a href="<?php echo ADMIN_URL; ?>/dashboard.php" class="btn me-2">
                 <i class="bi bi-x-lg me-1"></i>Cancel
               </a>
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn">
                 <i class="bi bi-check-lg me-2"></i>Save Changes
               </button>
             </div>

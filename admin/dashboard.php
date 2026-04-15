@@ -40,6 +40,16 @@ if (is_module_enabled('events') && has_permission('events_view')) {
   $upcoming_events = count_records('events', 'event_type = ? AND status = ?', ['upcoming', 'active']);
 }
 
+// ── Our Work stats ───────────────────────────────────────────────────────────
+if (is_module_enabled('our_work') && has_permission('our_work_view')) {
+  $total_our_work = count_records('gallery', "display_section IN ('our_work', 'our-work')");
+}
+
+// ── Media Coverage stats ─────────────────────────────────────────────────────
+if (is_module_enabled('media') && has_permission('media_view')) {
+  $total_media_coverage = count_records('gallery', "display_section IN ('media_coverage', 'media')");
+}
+
 // ── Forms stats ───────────────────────────────────────────────────────────────
 if (is_module_enabled('forms') && has_permission('forms_view')) {
   $total_forms = count_records('forms');
@@ -204,6 +214,34 @@ include __DIR__ . '/includes/header.php';
     </div>
   <?php endif; ?>
 
+  <?php if (is_module_enabled('our_work') && has_permission('our_work_view')): ?>
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body d-flex align-items-center">
+          <div class="stats-icon primary me-3"><i class="bi bi-briefcase-fill"></i></div>
+          <div>
+            <h4 class="mb-0"><?php echo (int) ($total_our_work ?? 0); ?></h4>
+            <p class="text-muted mb-0 small">Our Work Images</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+
+  <?php if (is_module_enabled('media') && has_permission('media_view')): ?>
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body d-flex align-items-center">
+          <div class="stats-icon info me-3"><i class="bi bi-newspaper"></i></div>
+          <div>
+            <h4 class="mb-0"><?php echo (int) ($total_media_coverage ?? 0); ?></h4>
+            <p class="text-muted mb-0 small">Media Coverage</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+
   <?php if (is_module_enabled('forms') && has_permission('forms_view')): ?>
     <div class="col-6 col-md-3 mb-3">
       <div class="card stats-card">
@@ -308,6 +346,28 @@ include __DIR__ . '/includes/header.php';
         <?php if (is_module_enabled('events') && has_permission('events_view')): ?>
           <a href="<?php echo ADMIN_URL; ?>/modules/events/index.php" class="btn me-2 mb-2">
             <i class="bi bi-calendar-event me-2"></i>Manage Events
+          </a>
+        <?php endif; ?>
+
+        <?php if (is_module_enabled('our_work') && has_permission('our_work_create')): ?>
+          <a href="<?php echo ADMIN_URL; ?>/modules/our-work/create.php" class="btn me-2 mb-2">
+            <i class="bi bi-briefcase me-2"></i>Upload Our Work Image
+          </a>
+        <?php endif; ?>
+        <?php if (is_module_enabled('our_work') && has_permission('our_work_view')): ?>
+          <a href="<?php echo ADMIN_URL; ?>/modules/our-work/index.php" class="btn me-2 mb-2">
+            <i class="bi bi-briefcase-fill me-2"></i>View Our Work
+          </a>
+        <?php endif; ?>
+
+        <?php if (is_module_enabled('media') && has_permission('media_create')): ?>
+          <a href="<?php echo ADMIN_URL; ?>/modules/media/create.php" class="btn me-2 mb-2">
+            <i class="bi bi-newspaper me-2"></i>Upload Media Coverage
+          </a>
+        <?php endif; ?>
+        <?php if (is_module_enabled('media') && has_permission('media_view')): ?>
+          <a href="<?php echo ADMIN_URL; ?>/modules/media/index.php" class="btn me-2 mb-2">
+            <i class="bi bi-journal-text me-2"></i>View Media Coverage
           </a>
         <?php endif; ?>
 

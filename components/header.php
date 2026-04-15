@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/frontend-init.php';
+
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
 $currentPath = str_replace('\\', '/', strtolower($currentPath));
 $currentPath = rtrim($currentPath, '/');
@@ -24,6 +26,17 @@ $blogsActive = $isBlogsPage ? 'active' : '';
 $galleryActive = $isGallery ? 'active' : '';
 $contactActive = $isContact ? 'active' : '';
 $mediaActive = preg_match('#/media-coverage\.php$#', $currentPath) === 1 ? 'active' : '';
+
+$currentLang = frontend_current_lang();
+$toggleLang = $currentLang === 'hi' ? 'en' : 'hi';
+$switchLabel = $currentLang === 'hi' ? translate('lang_en', 'EN') : translate('lang_hi', 'हिंदी');
+$query = $_GET;
+$query['lang'] = $toggleLang;
+$switchUrl = $currentPath;
+if ($switchUrl === '') {
+	$switchUrl = '/';
+}
+$switchUrl .= '?' . http_build_query($query);
 ?>
 <!-- header-section start -->
 <header class="header-section-2">
@@ -42,26 +55,31 @@ $mediaActive = preg_match('#/media-coverage\.php$#', $currentPath) === 1 ? 'acti
 							<nav class="main-menu-3 d-none d-xl-block">
 								<ul>
 									<li class="<?php echo $homeActive; ?>">
-										<a href="index.php">Home</a>
+										<a href="index.php"><?php echo frontend_escape(translate('nav_home', 'Home')); ?></a>
 										
 									</li>
-									<li class="<?php echo $aboutActive; ?>"><a href='about.php'>About</a></li>
-									<li class="<?php echo $workActive; ?>"><a href='our-work.php'>Our Work</a></li>
+									<li class="<?php echo $aboutActive; ?>"><a href='about.php'><?php echo frontend_escape(translate('nav_about', 'About')); ?></a></li>
+									<li class="<?php echo $workActive; ?>"><a href='our-work.php'><?php echo frontend_escape(translate('nav_our_work', 'Our Work')); ?></a></li>
 									<li class="<?php echo $eventsActive; ?>">
-										<a href='events.php'>Events</a>
+										<a href='events.php'><?php echo frontend_escape(translate('nav_events', 'Events')); ?></a>
 										
 									</li>
 									<li class="<?php echo $blogsActive; ?>">
-										<a href="blogs/index.php">Blogs</a>
+										<a href="blogs/index.php"><?php echo frontend_escape(translate('nav_blogs', 'Blogs')); ?></a>
 										
 									</li>
 									<!-- <li><a href='contact.php'>Contact Us</a></li> -->
-	                            <li class="<?php echo $galleryActive; ?>"><a href='gallery.php'>Gallery</a></li>
-								<li class="<?php echo $mediaActive; ?>"><a href='media-coverage.php'>Media</a></li>
+	                            <li class="<?php echo $galleryActive; ?>"><a href='gallery.php'><?php echo frontend_escape(translate('nav_gallery', 'Gallery')); ?></a></li>
+								<li class="<?php echo $mediaActive; ?>"><a href='media-coverage.php'><?php echo frontend_escape(translate('nav_media', 'Media')); ?></a></li>
 								</ul>
 							</nav>
 						</div>
 						<div class="header-right">
+							<div class="header-btn-wrap d-none d-xl-flex me-2">
+								<a class='e-primary-btn is-hover-white' href='<?php echo frontend_escape($switchUrl); ?>'>
+									<?php echo frontend_escape($switchLabel); ?>
+								</a>
+							</div>
 							<!-- <div class="header-info-2 d-none d-xl-flex">
 								<div class="header-info-icon">
 									<i class="fa-regular fa-phone-volume"></i>
@@ -73,7 +91,7 @@ $mediaActive = preg_match('#/media-coverage\.php$#', $currentPath) === 1 ? 'acti
 							</div> -->
 							<div class="header-btn-wrap d-none d-xl-flex">
 								<a class='e-primary-btn is-hover-white has-icon' href='contact.php'>
-									Contact Now
+									<?php echo frontend_escape(translate('header_contact_now', 'Contact Now')); ?>
 									<span class="icon-wrap">
 										<span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
 									</span>
@@ -110,19 +128,20 @@ $mediaActive = preg_match('#/media-coverage\.php$#', $currentPath) === 1 ? 'acti
 		<div class="off-canvas-menu">
 			<ul>
 				<li class="<?php echo $homeActive; ?>">
-					<a href="index.php">Home</a>
+					<a href="index.php"><?php echo frontend_escape(translate('nav_home', 'Home')); ?></a>
 				</li>
-				<li class="<?php echo $aboutActive; ?>"><a href='about.php'>About</a></li>
-				<li class="<?php echo $workActive; ?>"><a href='our-work.php'>Our Work</a></li>
+				<li class="<?php echo $aboutActive; ?>"><a href='about.php'><?php echo frontend_escape(translate('nav_about', 'About')); ?></a></li>
+				<li class="<?php echo $workActive; ?>"><a href='our-work.php'><?php echo frontend_escape(translate('nav_our_work', 'Our Work')); ?></a></li>
 				<li class="<?php echo $eventsActive; ?>">
-					<a href='events.php'>Events</a>
+					<a href='events.php'><?php echo frontend_escape(translate('nav_events', 'Events')); ?></a>
 				</li>
 				<li class="<?php echo $blogsActive; ?>">
-					<a href="blogs/index.php">Blogs</a>
+					<a href="blogs/index.php"><?php echo frontend_escape(translate('nav_blogs', 'Blogs')); ?></a>
 				</li>
-				<li class="<?php echo $galleryActive; ?>"><a href='gallery.php'>Gallery</a></li>
-				<li class="<?php echo $contactActive; ?>"><a href='contact.php'>Contact Us</a></li>
-				<li class="<?php echo $mediaActive; ?>"><a href='media-coverage.php'>Media</a></li>
+				<li class="<?php echo $galleryActive; ?>"><a href='gallery.php'><?php echo frontend_escape(translate('nav_gallery', 'Gallery')); ?></a></li>
+				<li class="<?php echo $contactActive; ?>"><a href='contact.php'><?php echo frontend_escape(translate('nav_contact', 'Contact Us')); ?></a></li>
+				<li class="<?php echo $mediaActive; ?>"><a href='media-coverage.php'><?php echo frontend_escape(translate('nav_media', 'Media')); ?></a></li>
+				<li><a href="<?php echo frontend_escape($switchUrl); ?>"><?php echo frontend_escape($switchLabel); ?></a></li>
 
 			</ul>
 		</div>

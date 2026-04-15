@@ -31,7 +31,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load configuration
 $configPath = __DIR__ . '/config/config.php';
 if (!is_file($configPath)) {
-  $configPath = __DIR__ . '/config/config.example.php';
+  die('Missing admin/config/config.php. Create it before running admin panel.');
 }
 require_once $configPath;
 

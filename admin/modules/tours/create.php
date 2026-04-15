@@ -215,10 +215,10 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
       <div class="card">
         <div class="card-header"><strong>Featured Image</strong></div>
         <div class="card-body">
-          <input type="file" name="featured_image" class="form-control" accept="image/*"
+          <input type="file" name="featured_image" class="form-control" accept="image/webp"
                  id="featuredImageInput" data-no-generic-preview="1">
           <small class="text-muted d-block mt-1">
-            Accepted: JPG, PNG, WebP, GIF. Max <?php echo format_file_size(MAX_UPLOAD_SIZE); ?>.
+            Accepted: WebP only. Max <?php echo format_file_size(MAX_UPLOAD_SIZE); ?>.
           </small>
           <div id="featuredImagePreview" class="mt-2 d-none">
             <img id="featuredImagePreviewImg" src="" alt="Preview" class="img-fluid rounded" style="max-height:180px">

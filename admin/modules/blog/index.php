@@ -123,7 +123,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
       <div class="text-center py-5">
         <i class="bi bi-inbox empty-state-icon"></i>
         <p class="text-muted mt-3">No blog posts found.</p>
-        <a href="<?php echo ADMIN_URL; ?>/modules/blog/create.php" class="btn btn-primary">
+        <a href="<?php echo ADMIN_URL; ?>/modules/blog/create.php" class="btn">
           <i class="bi bi-plus-lg me-2"></i>Create Your First Blog Post
         </a>
       </div>
@@ -178,7 +178,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
                     <?php endif; ?>
                     <?php if (has_permission('blog_delete')): ?>
                       <a href="<?php echo ADMIN_URL; ?>/modules/blog/delete.php?id=<?php echo $blog['id']; ?>&csrf=<?php echo generate_csrf_token(); ?>"
-                        class="btn btn-sm  delete-btn" title="Move to Trash">
+                        class="btn btn-sm  delete-btn" title="Delete">
                         <i class="bi bi-trash"></i>
                       </a>
                     <?php endif; ?>

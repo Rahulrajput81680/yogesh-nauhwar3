@@ -39,6 +39,22 @@ $(document).ready(function () {
 
   // Image preview (skipped for inputs that have their own custom preview handler)
   $('input[type="file"]').on("change", function (e) {
+    var maxUploadSize = Number(window.ADMIN_MAX_UPLOAD_SIZE || 0);
+    var files = e.target.files || [];
+
+    $(this).siblings('.upload-size-error').remove();
+
+    if (maxUploadSize > 0 && files.length > 0) {
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].size > maxUploadSize) {
+          var msg = 'File size exceeds the maximum allowed size of ' + formatBytes(maxUploadSize) + '.';
+          $('<small class="text-danger upload-size-error d-block mt-1"></small>').text(msg).insertAfter($(this));
+          this.value = '';
+          return;
+        }
+      }
+    }
+
     if ($(this).data('no-generic-preview')) return;
     var file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
@@ -143,6 +159,19 @@ function generateSlug(str) {
     .replace(/[^\w\s-]/g, "")
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function formatBytes(bytes) {
+  var units = ['B', 'KB', 'MB', 'GB'];
+  var value = bytes;
+  var unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value = value / 1024;
+    unitIndex++;
+  }
+
+  return Math.round(value * 100) / 100 + ' ' + units[unitIndex];
 }
 
 /**

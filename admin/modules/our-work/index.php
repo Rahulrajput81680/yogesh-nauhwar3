@@ -18,7 +18,7 @@ $search = isset($_GET['search']) ? sanitize_input($_GET['search']) : '';
 $status_filter = isset($_GET['status']) ? sanitize_input($_GET['status']) : '';
 $category_filter = isset($_GET['category']) ? sanitize_input($_GET['category']) : '';
 
-$where = "g.display_section = 'our_work'";
+$where = "g.display_section IN ('our_work', 'our-work')";
 $params = [];
 
 if (!empty($search)) {
@@ -52,7 +52,7 @@ try {
 }
 
 try {
-  $categoriesStmt = $pdo->query("SELECT DISTINCT category FROM gallery WHERE display_section = 'our_work' AND category IS NOT NULL AND category != '' ORDER BY category");
+  $categoriesStmt = $pdo->query("SELECT DISTINCT category FROM gallery WHERE display_section IN ('our_work', 'our-work') AND category IS NOT NULL AND category != '' ORDER BY category");
   $categories = $categoriesStmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
   $categories = [];

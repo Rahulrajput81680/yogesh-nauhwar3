@@ -1,9 +1,69 @@
 <?php
 require_once __DIR__ . '/components/frontend-init.php';
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-	session_start();
+if (!function_exists('build_contact_auto_reply_email')) {
+	function build_contact_auto_reply_email(string $name, string $subject, string $message): array
+	{
+		$projectName = defined('PROJECT_NAME') ? PROJECT_NAME : 'Our Team';
+		$currentYear = date('Y');
+		$recipientName = htmlspecialchars($name !== '' ? $name : 'there', ENT_QUOTES, 'UTF-8');
+		$subjectLine = htmlspecialchars($subject !== '' ? $subject : 'General enquiry', ENT_QUOTES, 'UTF-8');
+		$messageBody = htmlspecialchars($message !== '' ? $message : 'No additional message provided.', ENT_QUOTES, 'UTF-8');
+		$projectNameSafe = htmlspecialchars($projectName, ENT_QUOTES, 'UTF-8');
+
+		$html = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style>
+		body { margin: 0; padding: 0; background: #edf7f0; font-family: Arial, Helvetica, sans-serif; color: #1f2937; }
+		.wrapper { width: 100%; padding: 32px 12px; }
+		.card { max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 48px rgba(17, 24, 39, 0.12); }
+		.header { background: linear-gradient(135deg, #2f8f5b 0%, #1f6f4a 100%); color: #ffffff; padding: 34px 32px; text-align: center; }
+		.badge { display: inline-block; margin-bottom: 14px; padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,0.16); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+		.content { padding: 34px 32px 30px; }
+		.lead { font-size: 16px; line-height: 1.7; margin: 0 0 16px; }
+		.panel { background: #f4faf6; border: 1px solid #cfe8d8; border-radius: 14px; padding: 18px 20px; margin: 22px 0; }
+		.panel h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: #2f8f5b; }
+		.message { margin: 0; white-space: pre-wrap; line-height: 1.7; }
+		.footer { padding: 18px 32px 30px; text-align: center; color: #6b7280; font-size: 13px; }
+	</style>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="card">
+			<div class="header">
+				<div class="badge">Message Received</div>
+				<h1 style="margin: 0; font-size: 28px;">Thank you for contacting us</h1>
+				<p style="margin: 12px 0 0; opacity: 0.95;">We will review your message and reply shortly.</p>
+			</div>
+			<div class="content">
+				<p class="lead">Hello {$recipientName},</p>
+				<p class="lead">We have received your message regarding <strong>{$subjectLine}</strong>. Our team will review it and get back to you shortly.</p>
+				<div class="panel">
+					<h3>Your Message</h3>
+					<p class="message">{$messageBody}</p>
+				</div>
+				<p class="lead" style="margin-bottom: 0;">If your request is urgent, please keep this email thread open so we can respond faster.</p>
+			</div>
+			<div class="footer">
+				<p style="margin: 0 0 8px;">&copy; {$currentYear} {$projectNameSafe}. All rights reserved.</p>
+				<p style="margin: 0;">This is an automated confirmation email. Please do not reply.</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+HTML;
+
+		$plain = "Hello {$name},\n\nWe have received your message regarding {$subject}. Our team will review it and get back to you shortly.\n\nYour message:\n{$message}\n\nIf your request is urgent, please keep this email thread open so we can respond faster.\n\n{$projectName}\nThis is an automated confirmation email. Please do not reply.";
+
+		return ['html' => $html, 'plain' => $plain];
+	}
 }
+
+$currentLang = frontend_current_lang();
 
 $contactMessage = '';
 $contactMessageType = '';
@@ -33,8 +93,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		// Silently reject spam without showing error
 		$_SESSION['contact_form_flash'] = [
 			'type' => 'success',
-			'message' => 'Your contact form is submitted successfully.'
+			'message' => translate('contact_success', 'Your message has been sent successfully.')
 		];
+
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode(['success' => true, 'message' => translate('contact_success', 'Your message has been sent successfully.')]);
+			exit;
+		}
+
 		header('Location: contact.php?submitted=1');
 		exit;
 	}
@@ -48,8 +115,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			// Silently reject spam (bot threshold)
 			$_SESSION['contact_form_flash'] = [
 				'type' => 'success',
-				'message' => 'Your contact form is submitted successfully.'
+				'message' => translate('contact_success', 'Your message has been sent successfully.')
 			];
+
+			if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+				header('Content-Type: application/json; charset=utf-8');
+				echo json_encode(['success' => true, 'message' => translate('contact_success', 'Your message has been sent successfully.')]);
+				exit;
+			}
+
 			header('Location: contact.php?submitted=1');
 			exit;
 		}
@@ -68,8 +142,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			// Silently return success (fake 200 OK, not an error)
 			$_SESSION['contact_form_flash'] = [
 				'type' => 'success',
-				'message' => 'Your contact form is submitted successfully.'
+				'message' => translate('contact_success', 'Your message has been sent successfully.')
 			];
+
+			if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+				header('Content-Type: application/json; charset=utf-8');
+				echo json_encode(['success' => true, 'message' => translate('contact_success', 'Your message has been sent successfully.')]);
+				exit;
+			}
+
 			header('Location: contact.php?submitted=1');
 			exit;
 		}
@@ -95,10 +176,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	];
 
 	if ($name === '' || $email === '' || $message === '') {
-		$contactMessage = 'Please fill all required fields.';
+		$contactMessage = translate('contact_required', 'Please fill all required fields.');
 		$contactMessageType = 'error';
 	} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		$contactMessage = 'Please enter a valid email address.';
+		$contactMessage = translate('contact_invalid_email', 'Please enter a valid email address.');
 		$contactMessageType = 'error';
 	} else {
 		$subjectParts = [];
@@ -135,20 +216,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$stmt = $pdo->prepare("INSERT INTO contact_messages ({$columnSql}) VALUES ({$placeholderSql})");
 			$stmt->execute($values);
 
+			if (!function_exists('send_email')) {
+				require_once __DIR__ . '/admin/core/mailer.php';
+			}
+
+			$autoReply = build_contact_auto_reply_email($name, $subject, $message);
+			$autoReplySubject = (defined('PROJECT_NAME') ? PROJECT_NAME : 'Website') . ' - We Received Your Message';
+			$replySent = send_email($email, $autoReplySubject, $autoReply['html'], $autoReply['plain']);
+			if (!$replySent) {
+				error_log('Contact auto-reply failed for: ' . $email);
+			}
+
 			// For AJAX requests, output message and exit
 			if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-				echo 'Your contact form is submitted successfully.';
+				header('Content-Type: application/json; charset=utf-8');
+				echo json_encode([
+					'success' => true,
+					'message' => translate('contact_success', 'Your message has been sent successfully.')
+				]);
 				exit;
 			}
 
 			$_SESSION['contact_form_flash'] = [
 				'type' => 'success',
-				'message' => 'Your contact form is submitted successfully.'
+				'message' => translate('contact_success', 'Your message has been sent successfully.')
 			];
 			header('Location: contact.php?submitted=1');
 			exit;
 		} catch (Throwable $e) {
-			$contactMessage = 'Something went wrong while submitting the form. Please try again.';
+			$contactMessage = translate('contact_failed', 'Something went wrong while submitting the form. Please try again.');
 			$contactMessageType = 'error';
 			$contactValues = [
 				'name' => $name,
@@ -162,19 +258,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
 	}
 } elseif (!empty($_GET['submitted'])) {
-	$contactMessage = $contactMessage ?: 'Your contact form is submitted successfully.';
+	$contactMessage = $contactMessage ?: translate('contact_success', 'Your message has been sent successfully.');
 	$contactMessageType = $contactMessageType ?: 'success';
 }
 
 // For AJAX requests with validation errors, output message and exit
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' && $contactMessage !== '') {
-	http_response_code($contactMessageType === 'error' ? 400 : 200);
-	echo $contactMessage;
+	header('Content-Type: application/json; charset=utf-8');
+	http_response_code($contactMessageType === 'error' ? 422 : 200);
+	echo json_encode([
+		'success' => $contactMessageType !== 'error',
+		'message' => $contactMessage
+	]);
 	exit;
 }
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="<?php echo frontend_escape($currentLang); ?>">
 
 <head>
 	<!-- Required meta tags -->
@@ -275,9 +375,9 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 				<div class="row justify-content-center">
 					<div class="col-xl-9">
 						<div class="contact-form-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-							<h3>Get in touch with our team</h3>
-							<p>Fill out the form and Feel free to say !!</p>
-							<form id="contact-form" action="contact.php" method="post">
+							<h3><?php echo frontend_escape(translate('contact_form_title', 'Get in touch with our team')); ?></h3>
+							<p><?php echo frontend_escape(translate('contact_form_subtitle', 'Fill out the form and Feel free to say !!')); ?></p>
+							<form id="contact-form" action="contact.php" method="post" data-modern-contact-handler="1">
 								<!-- Honeypot field - hidden from users -->
 								<input type="text" name="website" style="position: absolute; left: -9999px; opacity: 0;" tabindex="-1" autocomplete="off" aria-hidden="true">
 								<!-- Timestamp field for time-based spam check -->
@@ -286,13 +386,13 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 								<div class="row form-row">
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="text" placeholder="Full Name" name="name"
+											<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_full_name', 'Full Name')); ?>" name="name"
 												value="<?php echo frontend_display_text($contactValues['name']); ?>">
 										</div>
 									</div>
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="tel" placeholder="Phone Number" name="phone"
+											<input type="tel" placeholder="<?php echo frontend_escape(translate('placeholder_phone', 'Phone Number')); ?>" name="phone"
 												value="<?php echo frontend_display_text($contactValues['phone']); ?>">
 										</div>
 									</div>
@@ -300,13 +400,13 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 								<div class="row form-row">
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="email" placeholder="Email Address" name="email"
+											<input type="email" placeholder="<?php echo frontend_escape(translate('placeholder_email', 'Email Address')); ?>" name="email"
 												value="<?php echo frontend_display_text($contactValues['email']); ?>">
 										</div>
 									</div>
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="text" placeholder="Current Location" name="location"
+											<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_location', 'Current Location')); ?>" name="location"
 												value="<?php echo frontend_display_text($contactValues['location']); ?>">
 										</div>
 									</div>
@@ -314,13 +414,13 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 								<div class="row form-row">
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="text" placeholder="Date of Birth" name="date"
+											<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_dob', 'Date of Birth')); ?>" name="date"
 												value="<?php echo frontend_display_text($contactValues['date']); ?>">
 										</div>
 									</div>
 									<div class="col-xl-6">
 									<div class="input-wrap">
-										<input type="text" placeholder="Occupation" name="occupation"
+										<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_occupation', 'Occupation')); ?>" name="occupation"
 											value="<?php echo frontend_display_text($contactValues['occupation']); ?>">
 										</div>
 									</div>
@@ -328,12 +428,12 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 								<div class="row">
 									<div class="col-xl-12">
 										<div class="input-wrap">
-											<textarea placeholder="Say Something..."
+											<textarea placeholder="<?php echo frontend_escape(translate('placeholder_message', 'Say Something...')); ?>"
 												name="message"><?php echo frontend_display_text($contactValues['message']); ?></textarea>
 										</div>
 										<div class="input-button">
-											<button id="contactSubmitBtn" type="submit" class="e-primary-btn has-icon" data-default-text="Submit Now" data-submitting-text="Submitting...">
-												Submit Now
+											<button id="contactSubmitBtn" type="submit" class="e-primary-btn has-icon" data-default-text="<?php echo frontend_escape(translate('contact_submit_now', 'Submit Now')); ?>" data-submitting-text="<?php echo frontend_escape(translate('contact_submitting', 'Submitting...')); ?>">
+												<?php echo frontend_escape(translate('contact_submit_now', 'Submit Now')); ?>
 												<span class="icon-wrap">
 													<span class="icon"><i class="fa-regular fa-arrow-right"></i><i
 															class="fa-regular fa-arrow-right"></i></span>
@@ -344,7 +444,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 								</div>
 							</form>
 							<?php if ($contactMessage !== ''): ?>
-								<div class="alert <?php echo $contactMessageType === 'success' ? 'alert-success' : 'alert-danger'; ?> mt-3" role="alert">
+								<div id="contact-server-alert" class="alert <?php echo $contactMessageType === 'success' ? 'alert-success' : 'alert-danger'; ?> mt-3" role="alert" data-type="<?php echo frontend_escape($contactMessageType); ?>">
 									<?php echo frontend_escape($contactMessage); ?>
 								</div>
 							<?php endif; ?>
@@ -377,18 +477,98 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 	<script>
 		(function () {
 			// Set form timestamp for spam protection on page load
-			document.getElementById('form_timestamp').value = Math.floor(Date.now() / 1000);
+			var timestampField = document.getElementById('form_timestamp');
+			if (timestampField) {
+				timestampField.value = Math.floor(Date.now() / 1000);
+			}
 			
 			var form = document.getElementById('contact-form');
 			var submitBtn = document.getElementById('contactSubmitBtn');
+			var serverAlert = document.getElementById('contact-server-alert');
 			if (!form || !submitBtn) {
 				return;
 			}
 
-			form.addEventListener('submit', function () {
-				submitBtn.disabled = true;
-				submitBtn.classList.add('disabled');
-				submitBtn.childNodes[0].nodeValue = submitBtn.getAttribute('data-submitting-text') + ' ';
+			if (serverAlert && serverAlert.getAttribute('data-type') === 'success') {
+				setTimeout(function () {
+					serverAlert.remove();
+				}, 5000);
+			}
+
+			var originalLabel = submitBtn.getAttribute('data-default-text') || 'Submit Now';
+			var submittingLabel = submitBtn.getAttribute('data-submitting-text') || 'Submitting...';
+			var isSubmitting = false;
+			var messageWrap = document.createElement('div');
+			messageWrap.className = 'mt-3';
+			form.insertAdjacentElement('afterend', messageWrap);
+
+			function setButtonState(isSubmitting) {
+				submitBtn.disabled = isSubmitting;
+				submitBtn.classList.toggle('disabled', isSubmitting);
+				submitBtn.childNodes[0].nodeValue = (isSubmitting ? submittingLabel : originalLabel) + ' ';
+			}
+
+			function showMessage(type, text) {
+				messageWrap.innerHTML = '';
+				if (!text) {
+					return;
+				}
+				var alert = document.createElement('div');
+				alert.className = 'alert ' + (type === 'success' ? 'alert-success' : 'alert-danger');
+				alert.setAttribute('role', 'alert');
+				alert.textContent = text;
+				messageWrap.appendChild(alert);
+
+				if (type === 'success') {
+					setTimeout(function () {
+						if (alert.parentNode) {
+							alert.remove();
+						}
+					}, 5000);
+				}
+			}
+
+			form.addEventListener('submit', function (event) {
+				event.preventDefault();
+				if (isSubmitting) {
+					return;
+				}
+				isSubmitting = true;
+				setButtonState(true);
+				showMessage('', '');
+
+				var formData = new FormData(form);
+
+				fetch(form.getAttribute('action') || 'contact.php', {
+					method: 'POST',
+					body: formData,
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				})
+					.then(function (response) {
+						return response.json().then(function (data) {
+							return { ok: response.ok, data: data || {} };
+						});
+					})
+					.then(function (payload) {
+						if (payload.ok && payload.data.success) {
+							form.reset();
+							if (timestampField) {
+								timestampField.value = Math.floor(Date.now() / 1000);
+							}
+							showMessage('success', payload.data.message || <?php echo json_encode(translate('contact_success', 'Your message has been sent successfully.')); ?>);
+						} else {
+							showMessage('error', payload.data.message || <?php echo json_encode(translate('contact_failed', 'Something went wrong while submitting the form. Please try again.')); ?>);
+						}
+					})
+					.catch(function () {
+						showMessage('error', <?php echo json_encode(translate('contact_failed', 'Something went wrong while submitting the form. Please try again.')); ?>);
+					})
+					.finally(function () {
+						isSubmitting = false;
+						setButtonState(false);
+					});
 			});
 		})();
 	</script>

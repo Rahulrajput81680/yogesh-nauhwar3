@@ -1,4 +1,12 @@
 <!-- footer-section start -->
+<?php
+$footerContentText = (isset($contentText) && is_callable($contentText))
+	? $contentText
+	: static function (string $path): string {
+		$value = frontend_content($path);
+		return (is_string($value) && $value !== '') ? $value : '';
+	};
+?>
 <footer class="footer-section footer-section-2 p-t-55 p-t-md-100 p-t-xs-80 p-b-20">
 	<div class="container">
 		<div class="row justify-content-between row-gap-md-5 row-gap-4 p-b-40">
@@ -12,9 +20,7 @@
 						</div>
 						<div class="text">
 							<p>
-								Introducing our team of talented and skilled professionals
-								who are ready to increase your productivity and bring your
-								business.
+								<?php echo frontend_escape($footerContentText('footer-description.title')); ?>
 							</p>
 						</div>
 						<!-- <div class="info">

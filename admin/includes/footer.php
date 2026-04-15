@@ -23,6 +23,10 @@
 <!-- jQuery (optional, for easier DOM manipulation) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+  window.ADMIN_MAX_UPLOAD_SIZE = <?php echo (int) MAX_UPLOAD_SIZE; ?>;
+</script>
+
 <!-- Custom Admin Scripts -->
 <script src="<?php echo ADMIN_URL; ?>/assets/js/admin.js"></script>
 

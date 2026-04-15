@@ -214,7 +214,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
             <label for="thumbnail" class="form-label">
               <?php echo !empty($blog['thumbnail']) ? 'Change Featured Image' : 'Featured Image'; ?>
             </label>
-            <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*">
+            <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/webp">
             <small class="text-muted">Only WebP format. Max size: <?php echo format_file_size(MAX_UPLOAD_SIZE); ?></small>
           </div>
 

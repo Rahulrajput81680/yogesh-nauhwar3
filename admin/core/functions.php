@@ -221,3 +221,58 @@ function require_module(string $moduleName): void
     exit;
   }
 }
+
+/**
+ * Get a persisted admin setting value.
+ */
+function get_admin_setting(string $key, ?string $default = null): ?string
+{
+  static $cache = [];
+
+  if (array_key_exists($key, $cache)) {
+    return $cache[$key];
+  }
+
+  global $pdo;
+  if (!isset($pdo) || !($pdo instanceof PDO)) {
+    return $default;
+  }
+
+  try {
+    $stmt = $pdo->prepare('SELECT setting_value FROM admin_settings WHERE setting_key = ? LIMIT 1');
+    $stmt->execute([$key]);
+    $value = $stmt->fetchColumn();
+    if ($value === false) {
+      $cache[$key] = $default;
+      return $default;
+    }
+    $cache[$key] = (string) $value;
+    return $cache[$key];
+  } catch (Throwable $e) {
+    return $default;
+  }
+}
+
+/**
+ * Persist an admin setting value.
+ */
+function set_admin_setting(string $key, string $value): bool
+{
+  static $cache = [];
+
+  global $pdo;
+  if (!isset($pdo) || !($pdo instanceof PDO)) {
+    return false;
+  }
+
+  try {
+    $stmt = $pdo->prepare('INSERT INTO admin_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP');
+    $ok = $stmt->execute([$key, $value]);
+    if ($ok) {
+      $cache[$key] = $value;
+    }
+    return $ok;
+  } catch (Throwable $e) {
+    return false;
+  }
+}

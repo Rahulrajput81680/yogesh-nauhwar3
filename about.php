@@ -1,12 +1,28 @@
+<?php
+require_once __DIR__ . '/components/frontend-init.php';
+
+$lang = frontend_current_lang();
+$contentText = static function (string $path) {
+	$value = frontend_content($path);
+	return (is_string($value) && $value !== '') ? $value : '';
+};
+$contentArray = static function (string $path): array {
+	$value = frontend_content($path);
+	return is_array($value) ? $value : [];
+};
+$contentList = static function (string $path) use ($lang): array {
+	return frontend_content_list($path, $lang);
+};
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo frontend_escape(frontend_current_lang()); ?>">
 <head>
 	<!-- Required meta tags -->
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
-	<title>About Yogesh Nauhwar — MLC UP | RLD Leader Mant Mathura Uttar Pradesh</title>
-	<meta name="description" content="Learn about Chaudhary Yogesh Nauhwar — his 17+ year political journey, election history, development works worth ₹14.41 crore, and his dedication to farmers and rural communities of Mant and Mathura.">
+	<title><?php echo frontend_escape($contentText('about.meta.title')); ?></title>
+	<meta name="description" content="<?php echo frontend_escape($contentText('about.meta.description')); ?>">
 
 	<?php include 'components/links.php'; ?>
 </head>
@@ -24,12 +40,12 @@
 					<div class="breadcrumb-content">
 						<div class="breadcrumb-nav" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
 							<ul>
-								<li><a href='index.html'>Home</a></li>
-								<li><a href="#">About Us</a></li>
+								<li><a href='index.html'><?php echo frontend_escape($contentText('about.breadcrumb.home')); ?></a></li>
+								<li><a href="#"><?php echo frontend_escape($contentText('about.breadcrumb.about')); ?></a></li>
 							</ul>
 						</div>
 						<div class="breadcrumb-title" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
-							<h2>Who We Are</h2>
+							<h2><?php echo frontend_escape($contentText('about.breadcrumb.title')); ?></h2>
 						</div>
 					</div>
 				</div>
@@ -55,39 +71,39 @@
 				<div class="col-xl-6">
 					<div class="why-us-content-2" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">
 						<div class="common-subtitle text-uppercase">
-							<span>About Us</span>
+							<span><?php echo frontend_escape($contentText('about.whyUs.subtitle')); ?></span>
 						</div>
 						<div class="common-title text-start">
-							<h2>Serving the People, Every Single Day</h2>
+							<h2><?php echo frontend_escape($contentText('about.whyUs.title')); ?></h2>
 						</div>
 						<div class="text">
-							<p>Chaudhary Yogesh Nauhwar has dedicated over 17 years of his life to the farmers, labourers, youth, and common citizens of Mant and Mathura. As a Member of the Uttar Pradesh Legislative Council and a senior leader of Rashtriya Lok Dal.
-</p>
+							<p><?php echo frontend_escape($contentText('about.whyUs.description')); ?></p>
 						</div>
 						<div class="services">
+							<?php
+							$whyUsPoints = $contentList('about.whyUs.points');
+							$leftPoints = array_slice($whyUsPoints, 0, 2);
+							$rightPoints = array_slice($whyUsPoints, 2);
+							?>
 							<div class="service-left">
-								<div class="service">
-									<i class="fa-solid fa-check"></i>
-									<p> 17+ Years of Public Service</p>
-								</div>
-								<div class="service">
-									<i class="fa-solid fa-check"></i>
-									<p>Voice of Farmers & Labourers</p>
-								</div>
+								<?php foreach ($leftPoints as $point): ?>
+									<div class="service">
+										<i class="fa-solid fa-check"></i>
+										<p><?php echo frontend_escape($point); ?></p>
+									</div>
+								<?php endforeach; ?>
 							</div>
 							<div class="service-right">
-								<div class="service">
-									<i class="fa-solid fa-check"></i>
-									<p>Elected MLC — Uttar Pradesh 2024</p>
-								</div>
-								<div class="service">
-									<i class="fa-solid fa-check"></i>
-									<p> Active in Legislative Council</p>
-								</div>
+								<?php foreach ($rightPoints as $point): ?>
+									<div class="service">
+										<i class="fa-solid fa-check"></i>
+										<p><?php echo frontend_escape($point); ?></p>
+									</div>
+								<?php endforeach; ?>
 							</div>
 						</div>
 						<div class="annual-donation-wrap">
-							<a class='e-primary-btn has-icon' href='contact.php'>Join us <span class="icon-wrap"><span class="icon"><i class="fa-regular fa-arrow-right"></i> <i class="fa-regular fa-arrow-right"></i></span></span></a>
+							<a class='e-primary-btn has-icon' href='contact.php'><?php echo frontend_escape($contentText('about.whyUs.cta')); ?> <span class="icon-wrap"><span class="icon"><i class="fa-regular fa-arrow-right"></i> <i class="fa-regular fa-arrow-right"></i></span></span></a>
 							<!-- <div class="annual-donation">
 								<img alt="icon-4" src="assets/img/icons/icon-4.svg">
 								<div class="annual-text">
@@ -115,10 +131,10 @@
 					<div class="about-us-content" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
 						<div class="common-subtitle">
 							<img src="assets/img/icons/wheat.png" alt="icon-2" class="wheat-icon"/>
-							<span>Our History</span>
+							<span><?php echo frontend_escape($contentText('about.history.subtitle')); ?></span>
 						</div>
 						<div class="common-title text-start">
-							<h2>A Journey Built on Trust & Dedication</h2>
+							<h2><?php echo frontend_escape($contentText('about.history.title')); ?></h2>
 						</div>
 						<div class="c-tabs-wrapper">
 							<ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -152,21 +168,17 @@
 								<div class="tab-pane fade show active" id="c-tab-1-pane" role="tabpanel" aria-labelledby="c-tab-1" tabindex="0">
 									<div class="tab-content">
 										<div class="year">
-											<h6>Year 2007</h6>
+											<h6><?php echo frontend_escape($contentArray('about.history.timeline')[0]['year'] ?? ''); ?></h6>
 										</div>
 										<div class="reward">
-											<h5>The Journey Begins —</h5>
+											<h5><?php echo frontend_escape($contentArray('about.history.timeline')[0]['title'][$lang] ?? ''); ?></h5>
 										</div>
 										<div class="text">
-											<p>
-												Joining Rashtriya Lok Dal
-Description:
-Chaudhary Yogesh Nauhwar officially joined the Rashtriya Lok Dal party under the leadership of Chaudhary Ajit Singh — beginning a lifelong commitment to serve the farmers, labourers, and rural communities of Mant and Mathura with honesty and dedication.
-											</p>
+											<p><?php echo nl2br(frontend_escape($contentArray('about.history.timeline')[0]['description'][$lang] ?? '')); ?></p>
 										</div>
 										<div class="annual-donation-wrap">
 											<a class='e-primary-btn has-icon' href='contact.php'>
-												Join us
+												<?php echo frontend_escape($contentText('about.history.cta')); ?>
 												<span class="icon-wrap">
                                                     <span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
                                                 </span>
@@ -177,22 +189,17 @@ Chaudhary Yogesh Nauhwar officially joined the Rashtriya Lok Dal party under the
 								<div class="tab-pane fade" id="c-tab-2-pane" role="tabpanel" aria-labelledby="c-tab-2" tabindex="0">
 									<div class="tab-content">
 										<div class="year">
-											<h6>Year 2012</h6>
+											<h6><?php echo frontend_escape($contentArray('about.history.timeline')[1]['year'] ?? ''); ?></h6>
 										</div>
 										<div class="reward">
-											<h5>First Election —</h5>
+											<h5><?php echo frontend_escape($contentArray('about.history.timeline')[1]['title'][$lang] ?? ''); ?></h5>
 										</div>
 										<div class="text">
-											<p>
-												Mant Vidhan Sabha
-Description:
-Yogesh Nauhwar contested his first Vidhan Sabha election from the Mant constituency on an RLD ticket — a bold step that introduced him as a serious, people-first political leader to the voters of Mathura district for the very first time.
-
-											</p>
+											<p><?php echo nl2br(frontend_escape($contentArray('about.history.timeline')[1]['description'][$lang] ?? '')); ?></p>
 										</div>
 										<div class="annual-donation-wrap">
 											<a class='e-primary-btn has-icon' href='contact.php'>
-												Join us
+												<?php echo frontend_escape($contentText('about.history.cta')); ?>
 												<span class="icon-wrap"><span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
                                                 </span>
 											</a>
@@ -202,21 +209,17 @@ Yogesh Nauhwar contested his first Vidhan Sabha election from the Mant constitue
 								<div class="tab-pane fade" id="c-tab-3-pane" role="tabpanel" aria-labelledby="c-tab-3" tabindex="0">
 									<div class="tab-content">
 										<div class="year">
-											<h6>Year 2017</h6>
+											<h6><?php echo frontend_escape($contentArray('about.history.timeline')[2]['year'] ?? ''); ?></h6>
 										</div>
 										<div class="reward">
-											<h5>A Near Victory — </h5>
+											<h5><?php echo frontend_escape($contentArray('about.history.timeline')[2]['title'][$lang] ?? ''); ?></h5>
 										</div>
 										<div class="text">
-											<p>
-												Lost by Only 432 Votes
-Description:
-In one of the closest contests in Mant's political history, Chaudhary Yogesh Nauhwar came within just 432 votes of winning the Mant Vidhan Sabha seat — proving beyond doubt his massive public support and unshakeable connection with the people of the region.
-											</p>
+											<p><?php echo nl2br(frontend_escape($contentArray('about.history.timeline')[2]['description'][$lang] ?? '')); ?></p>
 										</div>
 										<div class="annual-donation-wrap">
 											<a class='e-primary-btn has-icon' href='contact.php'>
-												Join us
+												<?php echo frontend_escape($contentText('about.history.cta')); ?>
 												<span class="icon-wrap">
 													<span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
                                                 </span>
@@ -227,21 +230,17 @@ In one of the closest contests in Mant's political history, Chaudhary Yogesh Nau
 								<div class="tab-pane fade" id="c-tab-4-pane" role="tabpanel" aria-labelledby="c-tab-4" tabindex="0">
 									<div class="tab-content">
 										<div class="year">
-											<h6>Year 2022</h6>
+											<h6><?php echo frontend_escape($contentArray('about.history.timeline')[3]['year'] ?? ''); ?></h6>
 										</div>
 										<div class="reward">
-											<h5>Standing Firm —</h5>
+											<h5><?php echo frontend_escape($contentArray('about.history.timeline')[3]['title'][$lang] ?? ''); ?></h5>
 										</div>
 										<div class="text">
-											<p>
-												Nomination Filed for Mant
-Description:
-Despite facing last-minute withdrawal of his ticket, Yogesh Nauhwar stood firm with unwavering courage and continued to serve the people of Mant with the same energy and dedication — never letting political setbacks affect his commitment to public service.
-											</p>
+											<p><?php echo nl2br(frontend_escape($contentArray('about.history.timeline')[3]['description'][$lang] ?? '')); ?></p>
 										</div>
 										<div class="annual-donation-wrap">
 											<a class='e-primary-btn has-icon' href='contact.php'>
-												Join us
+												<?php echo frontend_escape($contentText('about.history.cta')); ?>
 												<span class="icon-wrap">
 													<span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
                                                 </span>
@@ -252,21 +251,17 @@ Despite facing last-minute withdrawal of his ticket, Yogesh Nauhwar stood firm w
 								<div class="tab-pane fade" id="c-tab-5-pane" role="tabpanel" aria-labelledby="c-tab-5" tabindex="0">
 									<div class="tab-content">
 										<div class="year">
-											<h6>Year 2024</h6>
+											<h6><?php echo frontend_escape($contentArray('about.history.timeline')[4]['year'] ?? ''); ?></h6>
 										</div>
 										<div class="reward">
-											<h5>Historic Win —</h5>
+											<h5><?php echo frontend_escape($contentArray('about.history.timeline')[4]['title'][$lang] ?? ''); ?></h5>
 										</div>
 										<div class="text">
-											<p>
-												Elected MLC Unopposed
-Description:
-In 2024, Chaudhary Yogesh Nauhwar was elected as Member of the Uttar Pradesh Legislative Council — unopposed — alongside 9 NDA candidates. A moment of historic pride for every supporter, worker, and citizen of Mant and Mathura who stood by him through every challenge.
-											</p>
+											<p><?php echo nl2br(frontend_escape($contentArray('about.history.timeline')[4]['description'][$lang] ?? '')); ?></p>
 										</div>
 										<div class="annual-donation-wrap">
 											<a class='e-primary-btn has-icon' href='contact.php'>
-												Join us
+												<?php echo frontend_escape($contentText('about.history.cta')); ?>
 												<span class="icon-wrap">
 													<span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
                                                 </span>
@@ -296,30 +291,30 @@ In 2024, Chaudhary Yogesh Nauhwar was elected as Member of the Uttar Pradesh Leg
 			<div class="services-content">
 				<div class="text-center m-b-50 m-b-xs-40">
 					<div class="common-subtitle" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
-						<img alt="icon" src="assets/img/icons/icon-9.svg"> <span>Join Us</span>
+						<img alt="icon" src="assets/img/icons/icon-9.svg"> <span><?php echo frontend_escape($contentText('about.joinUs.subtitle')); ?></span>
 					</div>
 					<div class="common-title m-b-0" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">
-						<h2>How Can You Join Us</h2>
+						<h2><?php echo frontend_escape($contentText('about.joinUs.title')); ?></h2>
 					</div>
 				</div>
 				<div class="row row-gap-4 m-b-135 m-b-lg-120 m-b-md-100 m-b-xs-80" data-aos="fade-up" data-aos-delay="600" data-aos-duration="1000">
 					<div class="col-xl-4 col-md-6">
 						<div class="service-card-2">
 							<div class="service-top">
-								<h4>Join WhatsApp Community</h4>
+								<h4><?php echo frontend_escape($contentArray('about.joinUs.options')[0]['title'][$lang] ?? ''); ?></h4>
 								<div class="join-utility join-qr">
 									<img src="https://quickchart.io/qr?size=170&text=https%3A%2F%2Fchat.whatsapp.com%2F" alt="WhatsApp community QR" loading="lazy">
 								</div>
 							</div>
 							<div class="service-content">
-								<p>Click the button below to instantly join our official WhatsApp group and get real-time updates</p>
+								<p><?php echo frontend_escape($contentArray('about.joinUs.options')[0]['description'][$lang] ?? ''); ?></p>
 							</div>
 						</div>
 					</div>
 					<div class="col-xl-4 col-md-6">
 						<div class="service-card-2">
 							<div class="service-top">
-								<h4> Follow on Social Media</h4>
+								<h4><?php echo frontend_escape($contentArray('about.joinUs.options')[1]['title'][$lang] ?? ''); ?></h4>
 								<div class="join-utility join-social-links">
 									<a href="https://www.instagram.com/vidhayak_yogeshnauhwar/" target="_blank" rel="noopener" aria-label="Instagram">
 										<i class="fab fa-instagram"></i>
@@ -330,20 +325,20 @@ In 2024, Chaudhary Yogesh Nauhwar was elected as Member of the Uttar Pradesh Leg
 								</div>
 							</div>
 							<div class="service-content">
-								<p>Follow Chaudhary Yogesh Nauhwar on Instagram and Facebook to stay connected with his latest work, events, and activities from anywhere.</p>
+								<p><?php echo frontend_escape($contentArray('about.joinUs.options')[1]['description'][$lang] ?? ''); ?></p>
 							</div>
 						</div>
 					</div>
 					<div class="col-xl-4 col-md-6">
 						<div class="service-card-2">
 							<div class="service-top">
-								<h4>Become an RLD Member</h4>
+								<h4><?php echo frontend_escape($contentArray('about.joinUs.options')[2]['title'][$lang] ?? ''); ?></h4>
 								<div class="join-utility join-qr">
 									<img src="https://quickchart.io/qr?size=170&text=https%3A%2F%2Fwww.rashtriyalokdal.org%2F" alt="RLD membership QR" loading="lazy">
 								</div>
 							</div>
 							<div class="service-content">
-								<p>Register yourself as an official Rashtriya Lok Dal member and actively contribute to the movement for farmers and rural development in Mant</p>
+								<p><?php echo frontend_escape($contentArray('about.joinUs.options')[2]['description'][$lang] ?? ''); ?></p>
 							</div>
 						</div>
 					</div>
@@ -365,7 +360,7 @@ In 2024, Chaudhary Yogesh Nauhwar was elected as Member of the Uttar Pradesh Leg
 				<div class="line-right">
 					<img src="assets/img/shapes/shape-4.webp" alt="shape-4"/>
 				</div>
-				<h3>Government Schemes</h3>
+				<h3><?php echo frontend_escape($contentText('about.schemes.title')); ?></h3>
 				<div class="line">
 					<img src="assets/img/shapes/shape-4.webp" alt="shape-4"/>
 				</div>
@@ -418,7 +413,7 @@ In 2024, Chaudhary Yogesh Nauhwar was elected as Member of the Uttar Pradesh Leg
 			</div>
 			<div class="partner-btn text-center">
 				<a class='e-primary-btn has-icon' data-aos-delay='600' data-aos-duration='1000' data-aos='fade-up' href='contact.php'>
-					Become a Volunteer
+					<?php echo frontend_escape($contentText('about.schemes.cta')); ?>
 					<span class="icon-wrap">
 						<span class="icon"><i class="fa-regular fa-arrow-right"></i><i class="fa-regular fa-arrow-right"></i></span>
                     </span>

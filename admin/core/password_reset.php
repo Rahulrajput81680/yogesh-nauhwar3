@@ -106,6 +106,14 @@ function create_password_reset_request($pdo, $email)
     ");
     $insertStmt->execute([$user['id'], $token, $expires_at]);
 
+    if (empty($user['email']) || !filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+      return [
+        'success' => false,
+        'message' => 'No valid email is available for this user account.',
+        'user_exists' => true
+      ];
+    }
+
     // Send reset email
     $reset_link = BASE_URL . '/admin/reset-password.php?token=' . $token;
     $email_sent = send_password_reset_email($user, $reset_link, $expires_at);
@@ -113,23 +121,11 @@ function create_password_reset_request($pdo, $email)
     // Log activity for auditing even when fallback link is used.
     log_activity('password_reset_requested', 'authentication', $user['id'], 'Password reset requested for ' . $user['email']);
 
-    $host = (string) parse_url(BASE_URL, PHP_URL_HOST);
-    $isLocalhost = in_array($host, ['localhost', '127.0.0.1'], true);
-
     if ($email_sent) {
       return [
         'success' => true,
         'message' => 'If your email is registered, you will receive a password reset link.',
         'user_exists' => true,
-      ];
-    }
-
-    if ($isLocalhost) {
-      return [
-        'success' => true,
-        'message' => 'Email is not configured on localhost. Use the reset link below.',
-        'user_exists' => true,
-        'reset_link' => $reset_link,
       ];
     }
 
@@ -366,92 +362,73 @@ function destroy_user_sessions($user_id)
 function send_password_reset_email($user, $reset_link, $expires_at)
 {
   $to = $user['email'];
-  $subject = PROJECT_NAME . ' - Password Reset Request';
-
+  $subject = PROJECT_NAME . ' - Password Reset Instructions';
   $expiry_time = date('F j, Y \a\t g:i A', strtotime($expires_at));
+  $current_year = date('Y');
+  $recipient_name = htmlspecialchars($user['full_name'] ?? $user['username'], ENT_QUOTES, 'UTF-8');
+  $reset_link_safe = htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8');
+  $project_name = htmlspecialchars(PROJECT_NAME, ENT_QUOTES, 'UTF-8');
 
-  // HTML email body
-  $message = "
+  $message = <<<HTML
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-    .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
-    .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-    .footer { text-align: center; margin-top: 30px; color: #6c757d; font-size: 14px; }
-    .warning { background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    body { margin: 0; padding: 0; background: #edf7f0; font-family: Arial, Helvetica, sans-serif; color: #1f2937; }
+    .wrapper { width: 100%; padding: 32px 12px; }
+    .container { max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 48px rgba(17, 24, 39, 0.12); }
+    .header { background: linear-gradient(135deg, #2f8f5b 0%, #1f6f4a 100%); color: #ffffff; padding: 36px 32px; text-align: center; }
+    .badge { display: inline-block; margin-bottom: 16px; padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,0.16); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .content { padding: 34px 32px 28px; }
+    .lead { font-size: 16px; line-height: 1.7; margin: 0 0 18px; }
+    .button-wrap { text-align: center; margin: 28px 0; }
+    .button { display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #2f8f5b 0%, #23734a 100%); color: #ffffff !important; text-decoration: none; border-radius: 12px; font-weight: 700; }
+    .link-box { word-break: break-all; background: #f4faf6; border: 1px solid #cfe8d8; padding: 14px 16px; border-radius: 12px; color: #1f2937; }
+    .note { margin: 24px 0; padding: 16px 18px; border-left: 4px solid #2f8f5b; background: #f4faf6; border-radius: 10px; font-size: 14px; line-height: 1.65; }
+    .footer { padding: 18px 32px 30px; text-align: center; color: #6b7280; font-size: 13px; background: #ffffff; }
   </style>
 </head>
 <body>
-  <div class='container'>
-    <div class='header'>
-      <h1>Password Reset Request</h1>
-    </div>
-    <div class='content'>
-      <p>Hello " . htmlspecialchars($user['full_name'] ?? $user['username']) . ",</p>
-      
-      <p>We received a request to reset your password for your admin account. If you didn't make this request, you can safely ignore this email.</p>
-      
-      <p>To reset your password, click the button below:</p>
-      
-      <div style='text-align: center;'>
-        <a href='" . htmlspecialchars($reset_link) . "' class='button'>Reset Password</a>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <div class="badge">Password Assistance</div>
+        <h1 style="margin: 0; font-size: 28px;">Password Reset Request</h1>
+        <p style="margin: 12px 0 0; opacity: 0.95;">Secure instructions for resetting your admin password</p>
       </div>
-      
-      <p>Or copy and paste this link into your browser:</p>
-      <p style='word-break: break-all; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>
-        " . htmlspecialchars($reset_link) . "
-      </p>
-      
-      <div class='warning'>
-        <strong>⚠️ Security Note:</strong>
-        <ul style='margin: 10px 0; padding-left: 20px;'>
-          <li>This link expires on: <strong>" . $expiry_time . "</strong></li>
-          <li>This link can only be used once</li>
-          <li>If you didn't request this, please ignore this email</li>
-        </ul>
+      <div class="content">
+        <p class="lead">Hello {$recipient_name},</p>
+        <p class="lead">We received a request to reset the password for your admin account. If you did not make this request, you can safely ignore this email.</p>
+        <div class="button-wrap">
+          <a href="{$reset_link_safe}" class="button">Reset Password</a>
+        </div>
+        <p class="lead" style="margin-bottom: 10px;">You can also copy and paste this link into your browser:</p>
+        <div class="link-box">{$reset_link_safe}</div>
+        <div class="note">
+          <strong>Important:</strong><br>
+          This link expires on <strong>{$expiry_time}</strong> and can only be used once.
+        </div>
+        <p class="lead" style="margin-bottom: 0;">For better account security, we recommend using a strong unique password and enabling two-factor authentication if available.</p>
       </div>
-      
-      <p>For security reasons, we recommend:</p>
-      <ul>
-        <li>Use a strong, unique password</li>
-        <li>Don't share your password with anyone</li>
-        <li>Enable two-factor authentication if available</li>
-      </ul>
-    </div>
-    <div class='footer'>
-      <p>&copy; " . date('Y') . " " . PROJECT_NAME . ". All rights reserved.</p>
-      <p>This is an automated email. Please do not reply.</p>
+      <div class="footer">
+        <p style="margin: 0 0 8px;">&copy; {$current_year} {$project_name}. All rights reserved.</p>
+        <p style="margin: 0;">This is an automated email. Please do not reply.</p>
+      </div>
     </div>
   </div>
 </body>
 </html>
-";
+HTML;
 
-  // Plain text version
-  $recipientName = $user['full_name'] ?? $user['username'];
-  $plain_message = "
-Hello " . $recipientName . ",
-
-We received a request to reset your password for your admin account.
-
-To reset your password, click the link below:
-" . $reset_link . "
-
-This link expires on: " . $expiry_time . "
-This link can only be used once.
-
-If you didn't request this password reset, you can safely ignore this email.
-
-For security reasons, we recommend using a strong, unique password.
-
----
-" . PROJECT_NAME . "
-This is an automated email. Please do not reply.
-";
+  $plain_message = "Hello " . ($user['full_name'] ?? $user['username']) . ",\n\n" .
+    "We received a request to reset the password for your admin account. If you did not make this request, you can safely ignore this email.\n\n" .
+    "Reset password link:\n" . $reset_link . "\n\n" .
+    "This link expires on: " . $expiry_time . "\n" .
+    "This link can only be used once.\n\n" .
+    "For better account security, we recommend using a strong unique password and enabling two-factor authentication if available.\n\n" .
+    "" . PROJECT_NAME . "\n" .
+    "This is an automated email. Please do not reply.";
 
   // Send via send_email() which uses SMTP if configured, else PHP mail()
   $mail_sent = send_email($to, $subject, $message, $plain_message);

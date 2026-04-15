@@ -819,6 +819,9 @@
 
         // Get the form.
         var form = $('#contact-form');
+        if (!form.length || form.attr('data-modern-contact-handler') === '1') {
+            return;
+        }
 
         // Get the messages div.
         var formMessages = $('.form-message');
@@ -839,6 +842,9 @@
                 type: 'POST',
                 url: $(form).attr('action'),
                 data: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 timeout: 10000
             })
                 .done(function(response) {

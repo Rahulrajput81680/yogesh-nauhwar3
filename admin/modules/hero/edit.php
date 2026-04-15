@@ -153,8 +153,8 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
                 </label>
               </div>
             <?php endif; ?>
-            <input type="file" class="form-control" name="background_image" accept=".jpg,.jpeg,.png,.webp">
-            <small class="text-muted">JPG, PNG, WebP â€” max <?php echo format_file_size(MAX_UPLOAD_SIZE); ?></small>
+            <input type="file" class="form-control" name="background_image" accept="image/webp">
+            <small class="text-muted">WebP only | Max size: <?php echo format_file_size(MAX_UPLOAD_SIZE); ?></small>
           </div>
 
           <!-- Heading -->

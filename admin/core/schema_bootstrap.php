@@ -152,6 +152,13 @@ if (!function_exists('admin_ensure_runtime_schema')) {
       if (!admin_schema_column_exists($pdo, 'gallery', 'uploaded_by')) {
         $pdo->exec("ALTER TABLE `gallery` ADD COLUMN `uploaded_by` int(11) DEFAULT NULL AFTER `status`");
       }
+
+      $pdo->exec("CREATE TABLE IF NOT EXISTS `admin_settings` (
+        `setting_key` varchar(100) NOT NULL,
+        `setting_value` text DEFAULT NULL,
+        `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`setting_key`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     } catch (Throwable $e) {
       error_log('Schema bootstrap error: ' . $e->getMessage());
     }

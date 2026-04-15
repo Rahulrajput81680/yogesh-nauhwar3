@@ -1,13 +1,10 @@
 <?php
 /**
- * Tour Management - Soft Delete / Restore / Purge
+ * Tour Management - Delete / Restore
  *
- * ?action=delete  (default) – soft-delete (sets deleted_at = NOW())
- * ?action=restore            – restore (sets deleted_at = NULL)
- * ?action=purge              – hard delete (removes record + featured image)
- *
- * delete  requires: tours_delete
- * restore/purge require: tours_restore
+ * ?action=delete  (default) – hard delete (removes record + featured image)
+ * ?action=restore            – restore from trash (legacy compatibility)
+ * ?action=purge              – alias of hard delete
  */
 
 require_once dirname(dirname(__DIR__)) . '/init.php';
@@ -19,10 +16,10 @@ $tour_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $action  = in_array($_GET['action'] ?? '', ['delete', 'restore', 'purge'])
          ? $_GET['action'] : 'delete';
 
-if ($action === 'delete') {
-    require_permission('tours_delete');
-} else {
+if ($action === 'restore') {
     require_permission('tours_restore');
+} else {
+    require_permission('tours_delete');
 }
 
 if (!validate_csrf_token($_GET['csrf'] ?? '')) {
@@ -50,21 +47,14 @@ if (!$tour) {
 }
 
 try {
-    if ($action === 'delete') {
-        $pdo->prepare("UPDATE tours SET deleted_at = NOW() WHERE id = ?")
-            ->execute([$tour_id]);
-        log_activity('delete', 'tours', $tour_id, "Soft-deleted tour: {$tour['title']}");
-        set_flash('success', 'Tour moved to trash.');
-        redirect(ADMIN_URL . '/modules/tours/index.php');
-
-    } elseif ($action === 'restore') {
+    if ($action === 'restore') {
         $pdo->prepare("UPDATE tours SET deleted_at = NULL WHERE id = ?")
             ->execute([$tour_id]);
         log_activity('restore', 'tours', $tour_id, "Restored tour: {$tour['title']}");
         set_flash('success', 'Tour restored successfully.');
         redirect(ADMIN_URL . '/modules/tours/index.php?view=trash');
 
-    } elseif ($action === 'purge') {
+    } elseif ($action === 'delete' || $action === 'purge') {
         // Delete featured image
         if (!empty($tour['featured_image'])) {
             $uploader = new FileUploader();
@@ -85,9 +75,9 @@ try {
         // Cascade deletes via foreign keys (highlights, itinerary, attributes, tabs, gallery)
         $pdo->prepare("DELETE FROM tours WHERE id = ?")
             ->execute([$tour_id]);
-        log_activity('purge', 'tours', $tour_id, "Permanently deleted tour: {$tour['title']}");
-        set_flash('success', 'Tour permanently deleted.');
-        redirect(ADMIN_URL . '/modules/tours/index.php?view=trash');
+        log_activity('delete', 'tours', $tour_id, "Deleted tour: {$tour['title']}");
+        set_flash('success', 'Tour deleted successfully.');
+        redirect(ADMIN_URL . '/modules/tours/index.php');
     }
 } catch (PDOException $e) {
     set_flash('error', 'Action failed: ' . $e->getMessage());

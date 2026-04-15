@@ -20,8 +20,8 @@ return [
   'testimonials' => false,
 
   // this is used to show or hide superadmin adn subamdin files or modules
-  'roles' => true,
+  'roles' => false,
 
   // it is used to prevent access to teachers,editor,subadmins onlu superadmin can access or login 
-  'users' => true,
+  'users' => false,
 ];

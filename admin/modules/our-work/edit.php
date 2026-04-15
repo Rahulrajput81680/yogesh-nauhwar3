@@ -19,7 +19,7 @@ if (!$image_id) {
 }
 
 try {
-  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section = 'our_work'");
+  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section IN ('our_work', 'our-work')");
   $stmt->execute([$image_id]);
   $gallery_image = $stmt->fetch();
 
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
       try {
-        $stmt = $pdo->prepare("UPDATE gallery SET title = ?, image = ?, category = ?, status = ? WHERE id = ? AND display_section = 'our_work'");
+        $stmt = $pdo->prepare("UPDATE gallery SET title = ?, image = ?, category = ?, display_section = 'our_work', status = ? WHERE id = ? AND display_section IN ('our_work', 'our-work')");
         $stmt->execute([$title, $image, $category, $status, $image_id]);
 
         log_activity('update', 'our_work', $image_id, "Updated Our Work image: $title");
@@ -112,7 +112,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
 
           <div class="mb-4">
             <label for="image" class="form-label">Replace Image (Optional)</label>
-            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <input type="file" class="form-control" id="image" name="image" accept="image/webp">
           </div>
 
           <div class="mb-3">

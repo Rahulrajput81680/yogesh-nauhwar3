@@ -244,7 +244,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
                     <?php endif; ?>
                     <?php if (has_permission('tours_delete')): ?>
                       <a href="delete.php?id=<?php echo $tour['id']; ?>&action=delete&csrf=<?php echo generate_csrf_token(); ?>"
-                        class="btn btn-sm" title="Move to trash" onclick="return confirm('Move this tour to trash?')">
+                        class="btn btn-sm" title="Delete" onclick="return confirm('Delete this tour permanently? This action cannot be undone.')">
                         <i class="bi bi-trash"></i>
                       </a>
                     <?php endif; ?>

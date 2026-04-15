@@ -21,7 +21,7 @@ if (!isset($_GET['csrf']) || !validate_csrf_token($_GET['csrf'])) {
 }
 
 try {
-  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section = 'media_coverage'");
+  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section IN ('media_coverage', 'media')");
   $stmt->execute([$image_id]);
   $gallery_image = $stmt->fetch();
 
@@ -35,7 +35,7 @@ try {
     $uploader->delete($gallery_image['image']);
   }
 
-  $stmt = $pdo->prepare("DELETE FROM gallery WHERE id = ? AND display_section = 'media_coverage'");
+  $stmt = $pdo->prepare("DELETE FROM gallery WHERE id = ? AND display_section IN ('media_coverage', 'media')");
   $stmt->execute([$image_id]);
 
   log_activity('delete', 'media', $image_id, "Deleted media image: {$gallery_image['title']}");

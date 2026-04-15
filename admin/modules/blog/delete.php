@@ -1,15 +1,11 @@
 <?php
 /**
- * Blog Management - Soft Delete / Restore / Purge
+ * Blog Management - Delete / Restore
  *
  * Actions:
- *   ?action=delete  (default) – soft-delete: sets deleted_at = NOW()
- *   ?action=restore            – restore:     sets deleted_at = NULL
- *   ?action=purge              – hard delete: removes record + file
- *
- * delete  requires permission: blog_delete
- * restore requires permission: blog_restore
- * purge   requires permission: blog_restore
+ *   ?action=delete  (default) – hard delete: removes record + file
+ *   ?action=restore            – restore trashed row (legacy compatibility)
+ *   ?action=purge              – alias of hard delete
  */
 
 require_once dirname(dirname(__DIR__)) . '/init.php';
@@ -23,10 +19,10 @@ $action = in_array($_GET['action'] ?? '', ['delete', 'restore', 'purge'])
   : 'delete';
 
 // Permission check per action
-if ($action === 'delete') {
-  require_permission('blog_delete');
+if ($action === 'restore') {
+  require_permission('blog_restore');
 } else {
-  require_permission('blog_restore'); // restore + purge
+  require_permission('blog_delete');
 }
 
 // CSRF check
@@ -50,15 +46,7 @@ try {
     redirect(ADMIN_URL . '/modules/blog/index.php');
   }
 
-  if ($action === 'delete') {
-    // Soft delete
-    $pdo->prepare("UPDATE blogs SET deleted_at = NOW() WHERE id = ?")
-      ->execute([$blog_id]);
-    log_activity('delete', 'blog', $blog_id, "Soft-deleted blog: {$blog['title']}");
-    set_flash('success', 'Blog post moved to trash.');
-    redirect(ADMIN_URL . '/modules/blog/index.php');
-
-  } elseif ($action === 'restore') {
+  if ($action === 'restore') {
     // Restore from trash
     $pdo->prepare("UPDATE blogs SET deleted_at = NULL WHERE id = ?")
       ->execute([$blog_id]);
@@ -66,7 +54,7 @@ try {
     set_flash('success', 'Blog post restored successfully.');
     redirect(ADMIN_URL . '/modules/blog/index.php?view=trash');
 
-  } elseif ($action === 'purge') {
+  } elseif ($action === 'delete' || $action === 'purge') {
     // Permanently delete record + thumbnail
     if (!empty($blog['thumbnail'])) {
       $uploader = new FileUploader();
@@ -74,9 +62,9 @@ try {
     }
     $pdo->prepare("DELETE FROM blogs WHERE id = ?")
       ->execute([$blog_id]);
-    log_activity('purge', 'blog', $blog_id, "Permanently deleted blog: {$blog['title']}");
-    set_flash('success', 'Blog post permanently deleted.');
-    redirect(ADMIN_URL . '/modules/blog/index.php?view=trash');
+    log_activity('delete', 'blog', $blog_id, "Deleted blog: {$blog['title']}");
+    set_flash('success', 'Blog post deleted successfully.');
+    redirect(ADMIN_URL . '/modules/blog/index.php');
   }
 
 } catch (PDOException $e) {

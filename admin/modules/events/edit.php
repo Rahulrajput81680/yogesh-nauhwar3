@@ -141,7 +141,7 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
 
           <div class="mb-3">
             <label class="form-label">Change Image</label>
-            <input type="file" class="form-control" name="image" accept="image/*">
+            <input type="file" class="form-control" name="image" accept="image/webp">
           </div>
 
           <div class="mb-3">

@@ -79,10 +79,6 @@ class FileUploader
     // Validate MIME type with fallback for missing finfo extension
     $mimeType = $this->get_mime_type($file['tmp_name']);
     $allowedMimes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/gif',
       'image/webp'
     ];
 

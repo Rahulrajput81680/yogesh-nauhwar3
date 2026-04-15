@@ -982,7 +982,7 @@ label {
 }
 @media (min-width: 1200px) and (max-width: 1399px) {
   .header-left-3 {
-    width: 75%;
+    width: 73%;
   }
 }
 
@@ -3822,7 +3822,7 @@ label {
   position: absolute;
   left: auto;
   right: 90px;
-  bottom: 50px;
+  bottom: 90px;
   z-index: 99;
   display: inline-flex;
   align-items: center;
@@ -10402,7 +10402,7 @@ label {
 }
 .section-top-3 .right .service-btn {
   gap: 8px;
-  padding: 0;
+  /* padding: 0; */
   background: transparent;
   color: var(--theme-color-2);
 }
@@ -10474,6 +10474,7 @@ label {
   overflow: hidden;
   background-color: var(--white-color);
   border-radius: 10px;
+  height: 100%;
 }
 .what-we-do-section-2 .we-do-card:hover .card-content i {
   color: var(--theme-color-3);
@@ -10514,6 +10515,24 @@ label {
   line-height: 36px;
   color: var(--theme-color-3);
   margin-bottom: 20px;
+}
+.whatwedo-slider-active .swiper-wrapper {
+  align-items: stretch;
+}
+.whatwedo-slider-active .swiper-slide {
+  height: 100%;
+  display: flex;
+}
+.what-we-do-section-2 .we-do-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.what-we-do-section-2 .we-do-card .card-content {
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 @media (min-width: 1200px) and (max-width: 1399px) {
   .what-we-do-section-2 .we-do-card .card-content h5 {

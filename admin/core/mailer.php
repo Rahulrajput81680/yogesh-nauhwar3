@@ -17,25 +17,44 @@ if (!defined('ADMIN_INIT')) {
  */
 function send_email(string $to, string $subject, string $htmlBody, string $plainBody = ''): bool
 {
+  if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+    error_log('send_email aborted: invalid recipient email [' . $to . ']');
+    return false;
+  }
+
   if (!$plainBody) {
     $plainBody = trim(strip_tags(preg_replace('/<br\s*\/?>/i', "\n", $htmlBody)));
   }
 
-  $fromName = defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : PROJECT_NAME;
-  $fromAddress = defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@localhost';
+  $fromName = trim((string) get_admin_setting('smtp_from_name', defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : PROJECT_NAME));
+  $fromAddress = trim((string) get_admin_setting('smtp_from_email', defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@localhost'));
 
-  if (defined('MAIL_SMTP_HOST') && !empty(MAIL_SMTP_HOST)) {
+  $smtpHost = trim((string) get_admin_setting('smtp_host', defined('MAIL_SMTP_HOST') ? MAIL_SMTP_HOST : ''));
+  $smtpPort = (int) get_admin_setting('smtp_port', (string) (defined('MAIL_SMTP_PORT') ? (int) MAIL_SMTP_PORT : 587));
+  $smtpUser = trim((string) get_admin_setting('smtp_user', defined('MAIL_SMTP_USER') ? MAIL_SMTP_USER : ''));
+  $smtpPass = (string) get_admin_setting('smtp_pass', defined('MAIL_SMTP_PASS') ? MAIL_SMTP_PASS : '');
+  $smtpEncryption = strtolower(trim((string) get_admin_setting('smtp_encryption', 'tls')));
+  if (!in_array($smtpEncryption, ['tls', 'ssl', 'none'], true)) {
+    $smtpEncryption = 'tls';
+  }
+
+  if ($smtpHost !== '' && $smtpUser !== '' && $smtpPass !== '') {
     $mailer = new SimpleMailer(
-      MAIL_SMTP_HOST,
-      defined('MAIL_SMTP_PORT') ? (int) MAIL_SMTP_PORT : 587,
-      defined('MAIL_SMTP_USER') ? MAIL_SMTP_USER : '',
-      defined('MAIL_SMTP_PASS') ? MAIL_SMTP_PASS : ''
+      $smtpHost,
+      $smtpPort > 0 ? $smtpPort : 587,
+      $smtpUser,
+      $smtpPass,
+      $fromAddress,
+      $fromName,
+      $smtpEncryption
     );
     $sent = $mailer->send($to, $subject, $htmlBody, $plainBody);
     if (!$sent) {
       error_log('SimpleMailer errors: ' . implode(' | ', $mailer->getErrors()));
     }
-    return $sent;
+    if ($sent) {
+      return true;
+    }
   }
 
   // Fallback: PHP native mail()
@@ -63,18 +82,24 @@ class SimpleMailer
   private int $port;
   private string $username;
   private string $password;
+  private string $fromEmail;
+  private string $fromName;
+  private string $encryption;
 
   /** @var resource|null */
   private $socket = null;
 
   private array $errors = [];
 
-  public function __construct(string $host, int $port, string $username, string $password)
+  public function __construct(string $host, int $port, string $username, string $password, string $fromEmail, string $fromName, string $encryption = 'tls')
   {
     $this->host = $host;
     $this->port = $port;
     $this->username = $username;
     $this->password = $password;
+    $this->fromEmail = $fromEmail;
+    $this->fromName = $fromName;
+    $this->encryption = in_array($encryption, ['tls', 'ssl', 'none'], true) ? $encryption : 'tls';
   }
 
   // ── Public ────────────────────────────────────────────────────────────────
@@ -89,17 +114,14 @@ class SimpleMailer
       if (!$this->authenticate())
         return false;
 
-      $fromEmail = defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@localhost';
-      $fromName = defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : PROJECT_NAME;
-
-      if (!$this->cmd("MAIL FROM: <{$fromEmail}>", 250))
+      if (!$this->cmd("MAIL FROM: <{$this->fromEmail}>", 250))
         return false;
       if (!$this->cmd("RCPT TO: <{$to}>", 250))
         return false;
       if (!$this->cmd("DATA", 354))
         return false;
 
-      $message = $this->buildMessage($to, $fromName, $fromEmail, $subject, $htmlBody, $plainBody);
+      $message = $this->buildMessage($to, $this->fromName, $this->fromEmail, $subject, $htmlBody, $plainBody);
       $this->write($message . "\r\n.");
 
       $resp = $this->read();
@@ -129,7 +151,7 @@ class SimpleMailer
 
   private function connect(): bool
   {
-    $wrapper = $this->port === 465 ? 'ssl' : 'tcp';
+    $wrapper = ($this->encryption === 'ssl' || $this->port === 465) ? 'ssl' : 'tcp';
 
     $ctx = stream_context_create([
       'ssl' => [
@@ -166,7 +188,7 @@ class SimpleMailer
     if (!$this->cmd('EHLO ' . (gethostname() ?: 'localhost'), 250))
       return false;
 
-    if ($wrapper !== 'ssl') {
+    if ($this->encryption === 'tls') {
       if (!$this->cmd('STARTTLS', 220))
         return false;
 
@@ -186,6 +208,10 @@ class SimpleMailer
 
   private function authenticate(): bool
   {
+    if ($this->username === '' || $this->password === '') {
+      return true;
+    }
+
     if (!$this->cmd('AUTH LOGIN', 334))
       return false;
     if (!$this->cmd(base64_encode($this->username), 334)) {

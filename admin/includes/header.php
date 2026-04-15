@@ -173,6 +173,12 @@
             <i class="bi bi-clock-history me-2"></i>Activity Log
           </a>
         </li>
+
+        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'smtp-settings.php' ? 'active' : ''; ?>">
+          <a href="<?php echo ADMIN_URL; ?>/smtp-settings.php">
+            <i class="bi bi-envelope-gear me-2"></i>SMTP Settings
+          </a>
+        </li>
       </ul>
 
       <!-- Sidebar Footer -->

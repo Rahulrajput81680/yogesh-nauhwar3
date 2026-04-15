@@ -499,6 +499,20 @@ body.login-page {
     opacity: 0.9;
 }
 
+.login-page #toggle-password {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #ced4da;
+    border-left: 0;
+    padding: 0 14px;
+}
+
+.login-page #toggle-password:hover,
+.login-page #toggle-password:focus {
+    background: #eef1f4;
+    color: #212529;
+}
+
 /* Forgot Password Link */
 .forgot-password-link {
     color: #667eea;

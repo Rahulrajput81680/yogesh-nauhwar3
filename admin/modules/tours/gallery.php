@@ -177,11 +177,11 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
             <div class="row g-3 align-items-end">
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Select Images <span class="text-danger">*</span></label>
-                    <input type="file" name="gallery_images[]" class="form-control" accept="image/*"
+                    <input type="file" name="gallery_images[]" class="form-control" accept="image/webp"
                            multiple id="galleryFilePicker" data-no-generic-preview="1">
                     <small class="text-muted">
                         You can select multiple files at once.
-                        Max <?php echo format_file_size(MAX_UPLOAD_SIZE); ?> each.
+                        WebP only. Max <?php echo format_file_size(MAX_UPLOAD_SIZE); ?> each.
                     </small>
                 </div>
                 <div class="col-md-3">

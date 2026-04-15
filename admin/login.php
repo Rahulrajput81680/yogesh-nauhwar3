@@ -123,6 +123,9 @@ $timeout_message = isset($_GET['timeout']) ? 'Your session has expired. Please l
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
               <input type="password" class="form-control" id="password" name="password" required>
+              <button type="button" class="btn btn-outline-secondary" id="toggle-password" aria-label="Show password" aria-pressed="false">
+                <i class="bi bi-eye"></i>
+              </button>
             </div>
           </div>
 
@@ -145,6 +148,26 @@ $timeout_message = isset($_GET['timeout']) ? 'Your session has expired. Please l
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var passwordInput = document.getElementById('password');
+      var toggleButton = document.getElementById('toggle-password');
+
+      if (!passwordInput || !toggleButton) {
+        return;
+      }
+
+      toggleButton.addEventListener('click', function () {
+        var isVisible = passwordInput.type === 'text';
+        passwordInput.type = isVisible ? 'password' : 'text';
+        toggleButton.setAttribute('aria-pressed', isVisible ? 'false' : 'true');
+        toggleButton.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+        toggleButton.innerHTML = isVisible
+          ? '<i class="bi bi-eye"></i>'
+          : '<i class="bi bi-eye-slash"></i>';
+      });
+    })();
+  </script>
 </body>
 
 </html>

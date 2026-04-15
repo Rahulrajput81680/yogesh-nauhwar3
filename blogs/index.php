@@ -1,5 +1,6 @@
+<?php require_once __DIR__ . '/../components/frontend-init.php'; ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo frontend_escape(frontend_current_lang()); ?>">
 
 <head>
 	<!-- Required meta tags -->
@@ -18,8 +19,6 @@
 	<?php include '../components/header.php'; ?>
 
 	<?php
-	require_once __DIR__ . '/../components/frontend-init.php';
-
 	$blogs = [];
 
 	try {

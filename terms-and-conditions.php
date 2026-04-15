@@ -1,5 +1,6 @@
+<?php require_once __DIR__ . '/components/frontend-init.php'; ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo frontend_escape(frontend_current_lang()); ?>">
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
