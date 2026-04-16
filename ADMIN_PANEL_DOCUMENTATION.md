@@ -56,7 +56,6 @@ admin/
 │
 ├── config/
 │   ├── config.php          ← DB, URLs, mail, upload & security constants
-│   ├── config.example.php  ← Safe template to commit to git
 │   └── modules.php         ← Toggle each module on/off (true/false)
 │
 ├── core/

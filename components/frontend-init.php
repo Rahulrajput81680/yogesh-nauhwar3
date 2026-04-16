@@ -298,7 +298,7 @@ if (!function_exists('frontend_db')) {
 
     $configPath = __DIR__ . '/../admin/config/config.php';
     if (!is_file($configPath)) {
-      $configPath = __DIR__ . '/../admin/config/config.example.php';
+      throw new RuntimeException('Missing admin/config/config.php. Create it before running frontend pages.');
     }
     require_once $configPath;
 
