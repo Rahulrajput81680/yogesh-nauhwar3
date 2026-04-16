@@ -71,7 +71,7 @@ if (!defined('UPLOAD_DIR'))
 if (!defined('UPLOAD_URL'))
   define('UPLOAD_URL', BASE_URL . '/uploads');
 if (!defined('MAX_UPLOAD_SIZE'))
-  define('MAX_UPLOAD_SIZE', 5 * 1024 * 1024);
+  define('MAX_UPLOAD_SIZE', 1 * 1024 * 1024);
 if (!defined('ALLOWED_IMAGE_TYPES'))
   define('ALLOWED_IMAGE_TYPES', ['webp']);
 if (!defined('THUMB_WIDTH'))

@@ -30,12 +30,8 @@ if (!function_exists('frontend_translation_data')) {
       $data['phrases'] = [];
     }
 
-    $contentJsonPath = __DIR__ . '/content-translations.json';
-    if (is_file($contentJsonPath)) {
-      $decoded = json_decode((string) file_get_contents($contentJsonPath), true);
-      if (is_array($decoded)) {
-        $data['content'] = $decoded;
-      }
+    if (!isset($data['content']) || !is_array($data['content'])) {
+      $data['content'] = [];
     }
 
     if (isset($data['content']) && is_array($data['content'])) {

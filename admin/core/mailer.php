@@ -37,10 +37,10 @@ function send_email(string $to, string $subject, string $htmlBody, string $plain
     $plainBody = trim(strip_tags(preg_replace('/<br\s*\/?>/i', "\n", $htmlBody)));
   }
 
-  $smtpHost = trim((string) $readSetting('smtp_host', defined('sandbox.smtp.mailtrap.io') ? MAIL_SMTP_HOST : ''));
-  $smtpPort = (int) $readSetting('smtp_port', (string) (defined('587') ? (int) MAIL_SMTP_PORT : 587));
-  $smtpUser = trim((string) $readSetting('smtp_user', defined('120b154f30d18f') ? MAIL_SMTP_USER : ''));
-  $smtpPass = (string) $readSetting('smtp_pass', defined('793e5ec90f9768') ? MAIL_SMTP_PASS : '');
+  $smtpHost = trim((string) $readSetting('smtp_host', defined('MAIL_SMTP_HOST') ? MAIL_SMTP_HOST : ''));
+  $smtpPort = (int) $readSetting('smtp_port', (string) (defined('MAIL_SMTP_PORT') ? (int) MAIL_SMTP_PORT : 587));
+  $smtpUser = trim((string) $readSetting('smtp_user', defined('MAIL_SMTP_USER') ? MAIL_SMTP_USER : ''));
+  $smtpPass = (string) $readSetting('smtp_pass', defined('MAIL_SMTP_PASS') ? MAIL_SMTP_PASS : '');
   $smtpEncryption = strtolower(trim((string) $readSetting('smtp_encryption', 'tls')));
 
   $defaultFromName = defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : (defined('PROJECT_NAME') ? PROJECT_NAME : 'Website');

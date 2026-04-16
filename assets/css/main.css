@@ -9885,6 +9885,37 @@ label {
   max-width: 414px;
 }
 
+.equal-height-card-row > [class*="col-"] {
+  display: flex;
+}
+
+.equal-height-card-row .project-card {
+  width: 100%;
+  height: 100%;
+}
+
+.equal-height-card-row .project-card .thumb,
+.equal-height-card-row .project-card .thumb > a {
+  height: 100%;
+}
+
+.equal-height-card-row .project-card .thumb > a {
+  min-height: 320px;
+}
+
+.equal-height-card-row .project-card .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: auto;
+}
+
+@media (max-width: 767px) {
+  .equal-height-card-row .project-card .thumb > a {
+    min-height: 240px;
+  }
+}
+
 .completed-project-slider-active .project-card .thumb > a {
   display: block;
   width: 100%;
