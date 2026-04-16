@@ -22,7 +22,7 @@ if (!$image_id) {
 
 // Fetch image data
 try {
-  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section = 'gallery'");
   $stmt->execute([$image_id]);
   $gallery_image = $stmt->fetch();
 
@@ -46,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get and sanitize form data
     $title = sanitize_input($_POST['title'] ?? '');
     $category = sanitize_input($_POST['category'] ?? '');
-    $display_section = in_array($_POST['display_section'] ?? 'gallery', ['gallery', 'our_work', 'media_coverage'], true) ? $_POST['display_section'] : 'gallery';
     $status = sanitize_input($_POST['status'] ?? 'active');
 
     // Validation
@@ -76,15 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       try {
         $stmt = $pdo->prepare("
                     UPDATE gallery 
-                    SET title = ?, image = ?, category = ?, display_section = ?, status = ?
-                    WHERE id = ?
+                    SET title = ?, image = ?, category = ?, display_section = 'gallery', status = ?
+                    WHERE id = ? AND display_section = 'gallery'
                 ");
 
         $stmt->execute([
           $title,
           $image,
           $category,
-          $display_section,
           $status,
           $image_id
         ]);
@@ -160,16 +158,6 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
             <input type="text" class="form-control" id="category" name="category"
               value="<?php echo escape($_POST['category'] ?? ''); ?>" placeholder="e.g., Nature, Architecture, People">
           </div>
-
-          <div class="mb-3">
-            <label for="display_section" class="form-label">Display Section</label>
-            <select class="form-select" id="display_section" name="display_section">
-              <option value="gallery" <?php echo (($_POST['display_section'] ?? 'gallery') === 'gallery') ? 'selected' : ''; ?>>Gallery</option>
-              <option value="our_work" <?php echo (($_POST['display_section'] ?? '') === 'our_work') ? 'selected' : ''; ?>>Our Work</option>
-              <option value="media_coverage" <?php echo (($_POST['display_section'] ?? '') === 'media_coverage') ? 'selected' : ''; ?>>Media Coverage</option>
-            </select>
-          </div>
-
           <!-- Status -->
           <div class="mb-4">
             <label for="status" class="form-label">Status</label>

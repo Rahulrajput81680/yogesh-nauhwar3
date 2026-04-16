@@ -1,7 +1,7 @@
 <?php
 
 // Prevent direct access
-if (!defined(constant_name: 'ADMIN_INIT')) {
+if (!defined('ADMIN_INIT')) {
   die('Direct access not permitted');
 }
 

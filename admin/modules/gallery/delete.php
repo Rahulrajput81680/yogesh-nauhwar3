@@ -25,7 +25,7 @@ if (!isset($_GET['csrf']) || !validate_csrf_token($_GET['csrf'])) {
 
 // Fetch image data
 try {
-  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section = 'gallery'");
   $stmt->execute([$image_id]);
   $gallery_image = $stmt->fetch();
 
@@ -41,7 +41,7 @@ try {
   }
 
   // Delete from database
-  $stmt = $pdo->prepare("DELETE FROM gallery WHERE id = ?");
+  $stmt = $pdo->prepare("DELETE FROM gallery WHERE id = ? AND display_section = 'gallery'");
   $stmt->execute([$image_id]);
 
   // Log activity

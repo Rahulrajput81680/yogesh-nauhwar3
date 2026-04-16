@@ -36,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Create password reset request (sends email automatically)
     $result = create_password_reset_request($pdo, $email);
 
-    $message      = $result['message'];
+    $message = $result['message'];
     $message_type = $result['success'] ? 'success' : 'danger';
-    $reset_link   = $result['reset_link'] ?? '';
+    $reset_link = $result['reset_link'] ?? '';
   }
 }
 ?>
@@ -77,7 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <!-- Successfully sent -->
           <div class="info-box">
             <i class="bi bi-envelope-check-fill"></i>
-            Check your email inbox for the password reset link. The link expires in 30 minutes.
+            If your email is registered with us, you will receive a password reset link shortly. The link expires in 30
+            minutes.
           </div>
 
           <?php if (!empty($reset_link)): ?>

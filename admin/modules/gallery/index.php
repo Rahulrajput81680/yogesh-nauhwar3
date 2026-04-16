@@ -21,7 +21,7 @@ $status_filter = isset($_GET['status']) ? sanitize_input($_GET['status']) : '';
 $category_filter = isset($_GET['category']) ? sanitize_input($_GET['category']) : '';
 
 // Build query
-$where = '1=1';
+$where = "display_section = 'gallery'";
 $params = [];
 
 if (!empty($search)) {
@@ -65,7 +65,7 @@ try {
 
 // Get categories for filter
 try {
-  $categoriesStmt = $pdo->query("SELECT DISTINCT category FROM gallery WHERE category IS NOT NULL AND category != '' ORDER BY category");
+  $categoriesStmt = $pdo->query("SELECT DISTINCT category FROM gallery WHERE display_section = 'gallery' AND category IS NOT NULL AND category != '' ORDER BY category");
   $categories = $categoriesStmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
   $categories = [];
@@ -165,7 +165,8 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
                   <?php endif; ?>
                 </td>
                 <td>
-                  <span class="badge bg-secondary"><?php echo escape(ucwords(str_replace('_', ' ', $image['display_section'] ?? 'gallery'))); ?></span>
+                  <span
+                    class="badge bg-secondary"><?php echo escape(ucwords(str_replace('_', ' ', $image['display_section'] ?? 'gallery'))); ?></span>
                 </td>
                 <td><?php echo get_status_badge($image['status']); ?></td>
                 <td><?php echo escape($image['uploader'] ?? 'N/A'); ?></td>

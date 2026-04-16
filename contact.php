@@ -36,11 +36,11 @@ if (!function_exists('build_contact_auto_reply_email')) {
 			<div class="header">
 				<div class="badge">Message Received</div>
 				<h1 style="margin: 0; font-size: 28px;">Thank you for contacting us</h1>
-				<p style="margin: 12px 0 0; opacity: 0.95;">We will review your message and reply shortly.</p>
+				<p style="margin: 12px 0 0; opacity: 0.95;">We will contact you soon.</p>
 			</div>
 			<div class="content">
 				<p class="lead">Hello {$recipientName},</p>
-				<p class="lead">We have received your message regarding <strong>{$subjectLine}</strong>. Our team will review it and get back to you shortly.</p>
+				<p class="lead">Thank you for contacting us. We have received your message regarding <strong>{$subjectLine}</strong>, and our team will contact you soon.</p>
 				<div class="panel">
 					<h3>Your Message</h3>
 					<p class="message">{$messageBody}</p>
@@ -57,7 +57,7 @@ if (!function_exists('build_contact_auto_reply_email')) {
 </html>
 HTML;
 
-		$plain = "Hello {$name},\n\nWe have received your message regarding {$subject}. Our team will review it and get back to you shortly.\n\nYour message:\n{$message}\n\nIf your request is urgent, please keep this email thread open so we can respond faster.\n\n{$projectName}\nThis is an automated confirmation email. Please do not reply.";
+		$plain = "Hello {$name},\n\nThank you for contacting us. We have received your message regarding {$subject}, and our team will contact you soon.\n\nYour message:\n{$message}\n\nIf your request is urgent, please keep this email thread open so we can respond faster.\n\n{$projectName}\nThis is an automated confirmation email. Please do not reply.";
 
 		return ['html' => $html, 'plain' => $plain];
 	}
@@ -86,7 +86,7 @@ if (!empty($_SESSION['contact_form_flash'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
-	
+
 	// SPAM PROTECTION: Honeypot Field Check
 	$honeypotField = trim($_POST['website'] ?? '');
 	if ($honeypotField !== '') {
@@ -105,12 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		header('Location: contact.php?submitted=1');
 		exit;
 	}
-	
+
 	// SPAM PROTECTION: Time-Based Check
 	$formTimestamp = $_POST['form_timestamp'] ?? '';
 	if ($formTimestamp) {
 		$currentTime = time();
-		$elapsed = $currentTime - (int)$formTimestamp;
+		$elapsed = $currentTime - (int) $formTimestamp;
 		if ($elapsed < 3) {
 			// Silently reject spam (bot threshold)
 			$_SESSION['contact_form_flash'] = [
@@ -128,16 +128,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			exit;
 		}
 	}
-	
+
 	// SPAM PROTECTION: Rate Limiting (3 submissions per IP per 10 minutes)
 	try {
 		$pdo = frontend_db();
 		$tenMinutesAgo = date('Y-m-d H:i:s', strtotime('-10 minutes'));
-		
+
 		$stmt = $pdo->prepare("SELECT COUNT(*) FROM contact_messages WHERE ip_address = ? AND created_at > ?");
 		$stmt->execute([$clientIp, $tenMinutesAgo]);
 		$submissionCount = $stmt->fetchColumn();
-		
+
 		if ($submissionCount >= 10) {
 			// Silently return success (fake 200 OK, not an error)
 			$_SESSION['contact_form_flash'] = [
@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	} catch (Throwable $e) {
 		// Continue processing if rate limit check fails
 	}
-	
+
 	$name = trim($_POST['name'] ?? '');
 	$phone = trim($_POST['phone'] ?? '');
 	$email = trim($_POST['email'] ?? '');
@@ -217,14 +217,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$stmt->execute($values);
 
 			if (!function_exists('send_email')) {
+				if (!defined('ADMIN_INIT')) {
+					define('ADMIN_INIT', true);
+				}
 				require_once __DIR__ . '/admin/core/mailer.php';
 			}
 
-			$autoReply = build_contact_auto_reply_email($name, $subject, $message);
-			$autoReplySubject = (defined('PROJECT_NAME') ? PROJECT_NAME : 'Website') . ' - We Received Your Message';
-			$replySent = send_email($email, $autoReplySubject, $autoReply['html'], $autoReply['plain']);
-			if (!$replySent) {
-				error_log('Contact auto-reply failed for: ' . $email);
+			if (function_exists('send_email')) {
+				try {
+					$autoReply = build_contact_auto_reply_email($name, $subject, $message);
+					$autoReplySubject = (defined('PROJECT_NAME') ? PROJECT_NAME : 'Website') . ' - We Received Your Message';
+					$replySent = send_email($email, $autoReplySubject, $autoReply['html'], $autoReply['plain']);
+					if (!$replySent) {
+						error_log('Contact auto-reply failed for: ' . $email);
+					}
+				} catch (Throwable $mailError) {
+					error_log('Contact auto-reply exception: ' . $mailError->getMessage());
+				}
 			}
 
 			// For AJAX requests, output message and exit
@@ -376,63 +385,75 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 					<div class="col-xl-9">
 						<div class="contact-form-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
 							<h3><?php echo frontend_escape(translate('contact_form_title', 'Get in touch with our team')); ?></h3>
-							<p><?php echo frontend_escape(translate('contact_form_subtitle', 'Fill out the form and Feel free to say !!')); ?></p>
+							<p>
+								<?php echo frontend_escape(translate('contact_form_subtitle', 'Fill out the form and Feel free to say !!')); ?>
+							</p>
 							<form id="contact-form" action="contact.php" method="post" data-modern-contact-handler="1">
 								<!-- Honeypot field - hidden from users -->
-								<input type="text" name="website" style="position: absolute; left: -9999px; opacity: 0;" tabindex="-1" autocomplete="off" aria-hidden="true">
+								<input type="text" name="website" style="position: absolute; left: -9999px; opacity: 0;" tabindex="-1"
+									autocomplete="off" aria-hidden="true">
 								<!-- Timestamp field for time-based spam check -->
 								<input type="hidden" name="form_timestamp" id="form_timestamp" value="">
-								
+
 								<div class="row form-row">
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_full_name', 'Full Name')); ?>" name="name"
-												value="<?php echo frontend_display_text($contactValues['name']); ?>">
+											<input type="text"
+												placeholder="<?php echo frontend_escape(translate('placeholder_full_name', 'Full Name')); ?>"
+												name="name" value="<?php echo frontend_display_text($contactValues['name']); ?>">
 										</div>
 									</div>
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="tel" placeholder="<?php echo frontend_escape(translate('placeholder_phone', 'Phone Number')); ?>" name="phone"
-												value="<?php echo frontend_display_text($contactValues['phone']); ?>">
+											<input type="tel"
+												placeholder="<?php echo frontend_escape(translate('placeholder_phone', 'Phone Number')); ?>"
+												name="phone" value="<?php echo frontend_display_text($contactValues['phone']); ?>">
 										</div>
 									</div>
 								</div>
 								<div class="row form-row">
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="email" placeholder="<?php echo frontend_escape(translate('placeholder_email', 'Email Address')); ?>" name="email"
-												value="<?php echo frontend_display_text($contactValues['email']); ?>">
+											<input type="email"
+												placeholder="<?php echo frontend_escape(translate('placeholder_email', 'Email Address')); ?>"
+												name="email" value="<?php echo frontend_display_text($contactValues['email']); ?>">
 										</div>
 									</div>
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_location', 'Current Location')); ?>" name="location"
-												value="<?php echo frontend_display_text($contactValues['location']); ?>">
+											<input type="text"
+												placeholder="<?php echo frontend_escape(translate('placeholder_location', 'Current Location')); ?>"
+												name="location" value="<?php echo frontend_display_text($contactValues['location']); ?>">
 										</div>
 									</div>
 								</div>
 								<div class="row form-row">
 									<div class="col-xl-6">
 										<div class="input-wrap">
-											<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_dob', 'Date of Birth')); ?>" name="date"
-												value="<?php echo frontend_display_text($contactValues['date']); ?>">
+											<input type="text"
+												placeholder="<?php echo frontend_escape(translate('placeholder_dob', 'Date of Birth')); ?>"
+												name="date" value="<?php echo frontend_display_text($contactValues['date']); ?>">
 										</div>
 									</div>
 									<div class="col-xl-6">
-									<div class="input-wrap">
-										<input type="text" placeholder="<?php echo frontend_escape(translate('placeholder_occupation', 'Occupation')); ?>" name="occupation"
-											value="<?php echo frontend_display_text($contactValues['occupation']); ?>">
+										<div class="input-wrap">
+											<input type="text"
+												placeholder="<?php echo frontend_escape(translate('placeholder_occupation', 'Occupation')); ?>"
+												name="occupation" value="<?php echo frontend_display_text($contactValues['occupation']); ?>">
 										</div>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-xl-12">
 										<div class="input-wrap">
-											<textarea placeholder="<?php echo frontend_escape(translate('placeholder_message', 'Say Something...')); ?>"
+											<textarea
+												placeholder="<?php echo frontend_escape(translate('placeholder_message', 'Say Something...')); ?>"
 												name="message"><?php echo frontend_display_text($contactValues['message']); ?></textarea>
 										</div>
 										<div class="input-button">
-											<button id="contactSubmitBtn" type="submit" class="e-primary-btn has-icon" data-default-text="<?php echo frontend_escape(translate('contact_submit_now', 'Submit Now')); ?>" data-submitting-text="<?php echo frontend_escape(translate('contact_submitting', 'Submitting...')); ?>">
+											<button id="contactSubmitBtn" type="submit" class="e-primary-btn has-icon"
+												data-default-text="<?php echo frontend_escape(translate('contact_submit_now', 'Submit Now')); ?>"
+												data-submitting-text="<?php echo frontend_escape(translate('contact_submitting', 'Submitting...')); ?>">
 												<?php echo frontend_escape(translate('contact_submit_now', 'Submit Now')); ?>
 												<span class="icon-wrap">
 													<span class="icon"><i class="fa-regular fa-arrow-right"></i><i
@@ -444,7 +465,9 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 								</div>
 							</form>
 							<?php if ($contactMessage !== ''): ?>
-								<div id="contact-server-alert" class="alert <?php echo $contactMessageType === 'success' ? 'alert-success' : 'alert-danger'; ?> mt-3" role="alert" data-type="<?php echo frontend_escape($contactMessageType); ?>">
+								<div id="contact-server-alert"
+									class="alert <?php echo $contactMessageType === 'success' ? 'alert-success' : 'alert-danger'; ?> mt-3"
+									role="alert" data-type="<?php echo frontend_escape($contactMessageType); ?>">
 									<?php echo frontend_escape($contactMessage); ?>
 								</div>
 							<?php endif; ?>
@@ -481,7 +504,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 			if (timestampField) {
 				timestampField.value = Math.floor(Date.now() / 1000);
 			}
-			
+
 			var form = document.getElementById('contact-form');
 			var submitBtn = document.getElementById('contactSubmitBtn');
 			var serverAlert = document.getElementById('contact-server-alert');
@@ -489,7 +512,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 				return;
 			}
 
-			if (serverAlert && serverAlert.getAttribute('data-type') === 'success') {
+			if (serverAlert) {
 				setTimeout(function () {
 					serverAlert.remove();
 				}, 5000);
@@ -519,13 +542,11 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 				alert.textContent = text;
 				messageWrap.appendChild(alert);
 
-				if (type === 'success') {
-					setTimeout(function () {
-						if (alert.parentNode) {
-							alert.remove();
-						}
-					}, 5000);
-				}
+				setTimeout(function () {
+					if (alert.parentNode) {
+						alert.remove();
+					}
+				}, 5000);
 			}
 
 			form.addEventListener('submit', function (event) {

@@ -37,26 +37,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $user = $stmt->fetch();
 
       if ($user && verify_password($password, $user['password'])) {
-        // If users module is disabled, only superadmin may log in
-        if (!is_module_enabled('users') && $user['role'] !== 'superadmin') {
+        // Restrict login to superadmin only when role-based access is active.
+        if (!is_module_enabled('users') && is_module_enabled('roles') && $user['role'] !== 'superadmin') {
           $error = 'Login is currently restricted. Only Super Administrators are allowed to access the panel.';
         } else {
-        // Login successful
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_id'] = $user['id'];
-        $_SESSION['admin_username'] = $user['username'];
-        $_SESSION['admin_email'] = $user['email'];
-        $_SESSION['admin_role'] = $user['role'];
-        $_SESSION['last_activity'] = time();
+          // Login successful
+          $_SESSION['admin_logged_in'] = true;
+          $_SESSION['admin_id'] = $user['id'];
+          $_SESSION['admin_username'] = $user['username'];
+          $_SESSION['admin_email'] = $user['email'];
+          $_SESSION['admin_role'] = $user['role'];
+          $_SESSION['last_activity'] = time();
 
-        // Update last login
-        $updateStmt = $pdo->prepare("UPDATE admin_users SET last_login = NOW() WHERE id = ?");
-        $updateStmt->execute([$user['id']]);
+          // Update last login
+          $updateStmt = $pdo->prepare("UPDATE admin_users SET last_login = NOW() WHERE id = ?");
+          $updateStmt->execute([$user['id']]);
 
-        // Log activity
-        log_activity('login', 'authentication', $user['id'], 'User logged in');
+          // Log activity
+          log_activity('login', 'authentication', $user['id'], 'User logged in');
 
-        redirect(ADMIN_URL . '/dashboard.php');
+          redirect(ADMIN_URL . '/dashboard.php');
         } // end users-module check
       } else {
         $error = 'Invalid username or password.';
@@ -123,7 +123,8 @@ $timeout_message = isset($_GET['timeout']) ? 'Your session has expired. Please l
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
               <input type="password" class="form-control" id="password" name="password" required>
-              <button type="button" class="btn btn-outline-secondary" id="toggle-password" aria-label="Show password" aria-pressed="false">
+              <button type="button" class="btn btn-outline-secondary" id="toggle-password" aria-label="Show password"
+                aria-pressed="false">
                 <i class="bi bi-eye"></i>
               </button>
             </div>

@@ -18,7 +18,7 @@ $search = isset($_GET['search']) ? sanitize_input($_GET['search']) : '';
 $status_filter = isset($_GET['status']) ? sanitize_input($_GET['status']) : '';
 $category_filter = isset($_GET['category']) ? sanitize_input($_GET['category']) : '';
 
-$where = "g.display_section IN ('media_coverage', 'media')";
+$where = "g.display_section = 'media_coverage'";
 $params = [];
 
 if (!empty($search)) {
@@ -52,7 +52,7 @@ try {
 }
 
 try {
-  $categoriesStmt = $pdo->query("SELECT DISTINCT category FROM gallery WHERE display_section IN ('media_coverage', 'media') AND category IS NOT NULL AND category != '' ORDER BY category");
+  $categoriesStmt = $pdo->query("SELECT DISTINCT category FROM gallery WHERE display_section = 'media_coverage' AND category IS NOT NULL AND category != '' ORDER BY category");
   $categories = $categoriesStmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
   $categories = [];
@@ -74,7 +74,8 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
   <div class="card-body">
     <form method="GET" action="" class="row g-3">
       <div class="col-md-4">
-        <input type="text" name="search" class="form-control" placeholder="Search images..." value="<?php echo escape($search); ?>">
+        <input type="text" name="search" class="form-control" placeholder="Search images..."
+          value="<?php echo escape($search); ?>">
       </div>
       <div class="col-md-3">
         <select name="status" class="form-select">
@@ -87,7 +88,8 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
         <select name="category" class="form-select">
           <option value="">All Categories</option>
           <?php foreach ($categories as $cat): ?>
-            <option value="<?php echo escape($cat); ?>" <?php echo $category_filter === $cat ? 'selected' : ''; ?>><?php echo escape($cat); ?></option>
+            <option value="<?php echo escape($cat); ?>" <?php echo $category_filter === $cat ? 'selected' : ''; ?>>
+              <?php echo escape($cat); ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -125,18 +127,24 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
           <tbody>
             <?php foreach ($images as $image): ?>
               <tr>
-                <td><img src="<?php echo UPLOAD_URL . '/' . escape($image['image']); ?>" alt="Thumbnail" class="thumbnail-image"></td>
-                <td><strong><?php echo escape($image['title']); ?></strong><br><small class="text-muted"><?php echo escape($image['image']); ?></small></td>
-                <td><?php echo $image['category'] ? '<span class="badge bg-info">' . escape($image['category']) . '</span>' : '<span class="text-muted">-</span>'; ?></td>
+                <td><img src="<?php echo UPLOAD_URL . '/' . escape($image['image']); ?>" alt="Thumbnail"
+                    class="thumbnail-image"></td>
+                <td><strong><?php echo escape($image['title']); ?></strong><br><small
+                    class="text-muted"><?php echo escape($image['image']); ?></small></td>
+                <td>
+                  <?php echo $image['category'] ? '<span class="badge bg-info">' . escape($image['category']) . '</span>' : '<span class="text-muted">-</span>'; ?>
+                </td>
                 <td><?php echo get_status_badge($image['status']); ?></td>
                 <td><?php echo escape($image['uploader'] ?? 'N/A'); ?></td>
                 <td><?php echo format_date($image['created_at']); ?></td>
                 <td class="action-buttons">
                   <?php if (has_permission('media_edit')): ?>
-                    <a href="<?php echo ADMIN_URL; ?>/modules/media/edit.php?id=<?php echo $image['id']; ?>" class="btn btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <a href="<?php echo ADMIN_URL; ?>/modules/media/edit.php?id=<?php echo $image['id']; ?>"
+                      class="btn btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
                   <?php endif; ?>
                   <?php if (has_permission('media_delete')): ?>
-                    <a href="<?php echo ADMIN_URL; ?>/modules/media/delete.php?id=<?php echo $image['id']; ?>&csrf=<?php echo generate_csrf_token(); ?>" class="btn btn-sm delete-btn" title="Delete"><i class="bi bi-trash"></i></a>
+                    <a href="<?php echo ADMIN_URL; ?>/modules/media/delete.php?id=<?php echo $image['id']; ?>&csrf=<?php echo generate_csrf_token(); ?>"
+                      class="btn btn-sm delete-btn" title="Delete"><i class="bi bi-trash"></i></a>
                   <?php endif; ?>
                 </td>
               </tr>

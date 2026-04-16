@@ -19,7 +19,7 @@ if (!$image_id) {
 }
 
 try {
-  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section IN ('media_coverage', 'media')");
+  $stmt = $pdo->prepare("SELECT * FROM gallery WHERE id = ? AND display_section = 'media_coverage'");
   $stmt->execute([$image_id]);
   $gallery_image = $stmt->fetch();
 
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
       try {
-        $stmt = $pdo->prepare("UPDATE gallery SET title = ?, image = ?, category = ?, display_section = 'media_coverage', status = ? WHERE id = ? AND display_section IN ('media_coverage', 'media')");
+        $stmt = $pdo->prepare("UPDATE gallery SET title = ?, image = ?, category = ?, display_section = 'media_coverage', status = ? WHERE id = ? AND display_section = 'media_coverage'");
         $stmt->execute([$title, $image, $category, $status, $image_id]);
 
         log_activity('update', 'media', $image_id, "Updated media image: $title");
@@ -103,7 +103,8 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
         <div class="mb-4">
           <label class="form-label">Current Image</label>
           <div>
-            <img src="<?php echo UPLOAD_URL . '/' . escape($gallery_image['image']); ?>" alt="Current image" class="img-fluid image-preview preview-image-large">
+            <img src="<?php echo UPLOAD_URL . '/' . escape($gallery_image['image']); ?>" alt="Current image"
+              class="img-fluid image-preview preview-image-large">
           </div>
         </div>
 
@@ -117,12 +118,14 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
 
           <div class="mb-3">
             <label for="title" class="form-label">Title *</label>
-            <input type="text" class="form-control" id="title" name="title" value="<?php echo escape($_POST['title'] ?? ''); ?>" required>
+            <input type="text" class="form-control" id="title" name="title"
+              value="<?php echo escape($_POST['title'] ?? ''); ?>" required>
           </div>
 
           <div class="mb-3">
             <label for="category" class="form-label">Category</label>
-            <input type="text" class="form-control" id="category" name="category" value="<?php echo escape($_POST['category'] ?? ''); ?>">
+            <input type="text" class="form-control" id="category" name="category"
+              value="<?php echo escape($_POST['category'] ?? ''); ?>">
           </div>
 
           <div class="mb-4">
@@ -134,7 +137,8 @@ include dirname(dirname(__DIR__)) . '/includes/header.php';
           </div>
 
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a href="<?php echo ADMIN_URL; ?>/modules/media/index.php" class="btn btn-secondary"><i class="bi bi-x-lg me-2"></i>Cancel</a>
+            <a href="<?php echo ADMIN_URL; ?>/modules/media/index.php" class="btn btn-secondary"><i
+                class="bi bi-x-lg me-2"></i>Cancel</a>
             <button type="submit" class="btn"><i class="bi bi-check-lg me-2"></i>Update Image</button>
           </div>
         </form>

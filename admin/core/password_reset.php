@@ -58,6 +58,8 @@ function ensure_password_reset_table($pdo)
 function create_password_reset_request($pdo, $email)
 {
   try {
+    $genericSuccessMessage = 'If your email is registered, you will receive a password reset link.';
+
     ensure_password_reset_table($pdo);
     // Check rate limiting first
     // if (!check_reset_rate_limit($pdo, $email)) {
@@ -82,7 +84,7 @@ function create_password_reset_request($pdo, $email)
       // Don't reveal if email exists (security best practice)
       return [
         'success' => true,
-        'message' => 'If your email is registered, you will receive a password reset link.',
+        'message' => $genericSuccessMessage,
         'user_exists' => false
       ];
     }
@@ -107,9 +109,10 @@ function create_password_reset_request($pdo, $email)
     $insertStmt->execute([$user['id'], $token, $expires_at]);
 
     if (empty($user['email']) || !filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+      error_log('Password reset email skipped due to invalid registered email for user ID ' . $user['id']);
       return [
-        'success' => false,
-        'message' => 'No valid email is available for this user account.',
+        'success' => true,
+        'message' => $genericSuccessMessage,
         'user_exists' => true
       ];
     }
@@ -124,14 +127,16 @@ function create_password_reset_request($pdo, $email)
     if ($email_sent) {
       return [
         'success' => true,
-        'message' => 'If your email is registered, you will receive a password reset link.',
+        'message' => $genericSuccessMessage,
         'user_exists' => true,
       ];
     }
 
+    error_log('Password reset email dispatch failed for: ' . $user['email']);
+
     return [
-      'success' => false,
-      'message' => 'Failed to send reset email. Please try again later.',
+      'success' => true,
+      'message' => $genericSuccessMessage,
       'user_exists' => true
     ];
   } catch (PDOException $e) {

@@ -22,18 +22,46 @@ function send_email(string $to, string $subject, string $htmlBody, string $plain
     return false;
   }
 
+  $readSetting = static function (string $key, ?string $default = null): ?string {
+    if (function_exists('get_admin_setting')) {
+      try {
+        return get_admin_setting($key, $default);
+      } catch (Throwable $e) {
+        return $default;
+      }
+    }
+    return $default;
+  };
+
   if (!$plainBody) {
     $plainBody = trim(strip_tags(preg_replace('/<br\s*\/?>/i', "\n", $htmlBody)));
   }
 
-  $fromName = trim((string) get_admin_setting('smtp_from_name', defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : PROJECT_NAME));
-  $fromAddress = trim((string) get_admin_setting('smtp_from_email', defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@localhost'));
+  $smtpHost = trim((string) $readSetting('smtp_host', defined('sandbox.smtp.mailtrap.io') ? MAIL_SMTP_HOST : ''));
+  $smtpPort = (int) $readSetting('smtp_port', (string) (defined('587') ? (int) MAIL_SMTP_PORT : 587));
+  $smtpUser = trim((string) $readSetting('smtp_user', defined('120b154f30d18f') ? MAIL_SMTP_USER : ''));
+  $smtpPass = (string) $readSetting('smtp_pass', defined('793e5ec90f9768') ? MAIL_SMTP_PASS : '');
+  $smtpEncryption = strtolower(trim((string) $readSetting('smtp_encryption', 'tls')));
 
-  $smtpHost = trim((string) get_admin_setting('smtp_host', defined('MAIL_SMTP_HOST') ? MAIL_SMTP_HOST : ''));
-  $smtpPort = (int) get_admin_setting('smtp_port', (string) (defined('MAIL_SMTP_PORT') ? (int) MAIL_SMTP_PORT : 587));
-  $smtpUser = trim((string) get_admin_setting('smtp_user', defined('MAIL_SMTP_USER') ? MAIL_SMTP_USER : ''));
-  $smtpPass = (string) get_admin_setting('smtp_pass', defined('MAIL_SMTP_PASS') ? MAIL_SMTP_PASS : '');
-  $smtpEncryption = strtolower(trim((string) get_admin_setting('smtp_encryption', 'tls')));
+  $defaultFromName = defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : (defined('PROJECT_NAME') ? PROJECT_NAME : 'Website');
+  $fromName = trim((string) $readSetting('smtp_from_name', $defaultFromName));
+  if ($fromName === '') {
+    $fromName = $defaultFromName;
+  }
+
+  $defaultFromAddress = defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : '';
+  if (!filter_var($defaultFromAddress, FILTER_VALIDATE_EMAIL) && filter_var($smtpUser, FILTER_VALIDATE_EMAIL)) {
+    $defaultFromAddress = $smtpUser;
+  }
+  if (!filter_var($defaultFromAddress, FILTER_VALIDATE_EMAIL)) {
+    $defaultFromAddress = 'no-reply@example.com';
+  }
+
+  $fromAddress = trim((string) $readSetting('smtp_from_email', $defaultFromAddress));
+  if (!filter_var($fromAddress, FILTER_VALIDATE_EMAIL)) {
+    $fromAddress = $defaultFromAddress;
+  }
+
   if (!in_array($smtpEncryption, ['tls', 'ssl', 'none'], true)) {
     $smtpEncryption = 'tls';
   }
